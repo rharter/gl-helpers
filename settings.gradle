@@ -1,1 +1,1 @@
-include ':gl'
+include ':gl', ':sample'

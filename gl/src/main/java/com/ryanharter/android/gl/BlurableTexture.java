@@ -53,7 +53,7 @@ public class BlurableTexture extends WritableTexture {
       texelOffset[1] = incrementAmount * aspect;
       blurProgram.bindTexelOffset(texelOffset);
 
-      render(blurProgram.program());
+      render();
 
       intTexture.unbindFramebuffer(true);
 
@@ -68,7 +68,7 @@ public class BlurableTexture extends WritableTexture {
       texelOffset[1] = 0;
       blurProgram.bindTexelOffset(texelOffset);
 
-      render(blurProgram.program());
+      render();
       unbindFramebuffer(true);
 
       incrementAmount = amount / quality;
