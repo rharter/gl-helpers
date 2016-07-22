@@ -1,5 +1,6 @@
 package com.ryanharter.android.gl;
 
+import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -24,6 +25,11 @@ import static android.opengl.GLES30.glBindVertexArray;
 
 public final class GLState {
 
+  static Logger logger = new Logger.VoidLogger();
+
+  // TODO choose the best renderer based on env
+  private static Renderer renderer = new GLES2Renderer();
+
   private static boolean blend = false;
   private static int program = -1;
   private static int textureUnit = -1;
@@ -32,6 +38,10 @@ public final class GLState {
   private static int vertexArray = -1;
   private static SparseIntArray textures = new SparseIntArray();
   private static SparseBooleanArray attributes = new SparseBooleanArray();
+
+  public static void setLogger(Logger logger) {
+    GlUtil.logger = logger;
+  }
 
   private GLState() { }
 
@@ -58,6 +68,44 @@ public final class GLState {
     elementArrayBuffer = -1;
     vertexArray = -1;
     textures.clear();
+  }
+
+  /**
+   * Renders the current GL state to the active framebuffer.
+   */
+  public static void render() {
+    renderer.render();
+  }
+
+  /**
+   * Creates a new Exporter and begins recording.
+   * @param width The width of the exported image.
+   * @param height The height of the exported image.
+   * @return An Exporter that can be used to get a Bitmap of the GL context.
+   */
+  public static Exporter beginExport(int width, int height) {
+    Exporter exporter = new Exporter(width, height);
+    exporter.begin();
+    return exporter;
+  }
+
+  /**
+   * Renders the current GL context to a Bitmap.
+   * @param width The width of the exported bitmap.
+   * @param height The height of the exported bitmap.
+   * @return A new Bitmap containing the current GL context.
+   */
+  public static Bitmap export(int width, int height) {
+    Exporter exporter = new Exporter(width, height);
+    exporter.begin();
+
+    render();
+
+    Bitmap bitmap = exporter.bitmap();
+
+    exporter.destroy();
+
+    return bitmap;
   }
 
   public static void useProgram(int program) {

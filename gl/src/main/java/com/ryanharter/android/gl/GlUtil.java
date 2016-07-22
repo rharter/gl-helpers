@@ -1,57 +1,30 @@
 package com.ryanharter.android.gl;
 
-import android.opengl.GLES20;
-import android.opengl.GLES30;
-import android.os.Build;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 
-import static android.opengl.GLES20.GL_COMPILE_STATUS;
-import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
 import static android.opengl.GLES20.GL_LINEAR;
-import static android.opengl.GLES20.GL_LINK_STATUS;
 import static android.opengl.GLES20.GL_NO_ERROR;
-import static android.opengl.GLES20.GL_RENDERER;
 import static android.opengl.GLES20.GL_TEXTURE_2D;
 import static android.opengl.GLES20.GL_TEXTURE_MAG_FILTER;
 import static android.opengl.GLES20.GL_TEXTURE_MIN_FILTER;
-import static android.opengl.GLES20.GL_TRUE;
 import static android.opengl.GLES20.GL_UNSIGNED_BYTE;
-import static android.opengl.GLES20.GL_VENDOR;
-import static android.opengl.GLES20.GL_VERSION;
-import static android.opengl.GLES20.GL_VERTEX_SHADER;
-import static android.opengl.GLES20.glAttachShader;
 import static android.opengl.GLES20.glBindTexture;
-import static android.opengl.GLES20.glCompileShader;
-import static android.opengl.GLES20.glCreateProgram;
-import static android.opengl.GLES20.glCreateShader;
-import static android.opengl.GLES20.glDeleteProgram;
-import static android.opengl.GLES20.glDeleteShader;
 import static android.opengl.GLES20.glGenTextures;
 import static android.opengl.GLES20.glGetError;
-import static android.opengl.GLES20.glGetProgramInfoLog;
-import static android.opengl.GLES20.glGetProgramiv;
-import static android.opengl.GLES20.glGetShaderInfoLog;
-import static android.opengl.GLES20.glGetShaderiv;
-import static android.opengl.GLES20.glGetString;
-import static android.opengl.GLES20.glLinkProgram;
-import static android.opengl.GLES20.glShaderSource;
 import static android.opengl.GLES20.glTexImage2D;
 import static android.opengl.GLES20.glTexParameteri;
 
 /**
  * Some OpenGL utility functions.
+ *
+ * TODO Is this still needed?
  */
 public class GlUtil {
 
-    static Logger logger = new Logger.VoidLogger();
-
-    public static void setLogger(Logger logger) {
-        GlUtil.logger = logger;
-    }
+    static Logger logger = GLState.logger;
 
     /** Identity matrix for general bind.  Don't modify or life will get weird. */
     public static final float[] IDENTITY_MATRIX = new float[] {
@@ -65,79 +38,6 @@ public class GlUtil {
 
 
     private GlUtil() {}     // do not instantiate
-
-    /**
-     * Creates a new program from the supplied vertex and fragment shaders.
-     *
-     * @param vertexSource The source string of for vertex shader.
-     * @param fragmentSource The source string for the fragment shader
-     * @return A handle to the program, or 0 on failure.
-     */
-    public static int createProgram(String vertexSource, String fragmentSource) {
-        int vertexShader = loadShader(GL_VERTEX_SHADER, vertexSource);
-        int fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentSource);
-
-        int program = glCreateProgram();
-        checkError();
-        if (program == 0) {
-            throw new RuntimeException("Cannot create GL program: 0x" + Integer.toHexString(
-                    glGetError()));
-        }
-
-        glAttachShader(program, vertexShader);
-        checkError();
-        glAttachShader(program, fragmentShader);
-        checkError();
-        glLinkProgram(program);
-        checkError();
-
-        int[] linkStatus = new int[1];
-        glGetProgramiv(program, GL_LINK_STATUS, linkStatus, 0);
-        if (linkStatus[0] != GL_TRUE) {
-            logger.log(String.format("Could not link program: %s", glGetProgramInfoLog(program)));
-            glDeleteProgram(program);
-
-            throw new RuntimeException("Cannot create GL program: 0x" + Integer.toHexString(
-                    glGetError()));
-        }
-        return program;
-    }
-
-    /**
-     * Compiles the provided shader source.
-     *
-     * @param type The type of shader, either {@link GLES20#GL_FRAGMENT_SHADER}
-     *        or {@link GLES20#GL_VERTEX_SHADER}.
-     * @param source The source code of the shader to load.
-     * @return A handle to the shader, or 0 on failure.
-     */
-    public static int loadShader(int type, String source) {
-        int shader = glCreateShader(type);
-        glShaderSource(shader, source);
-        glCompileShader(shader);
-
-        int[] compiled = new int[1];
-        glGetShaderiv(shader, GL_COMPILE_STATUS, compiled, 0);
-        if (compiled[0] == 0) {
-            logger.log(String.format("Could not compile %s shader: %s", getShaderTypeString(type),
-                glGetShaderInfoLog(shader)));
-            glDeleteShader(shader);
-            shader = 0;
-        }
-
-        return shader;
-    }
-
-    private static String getShaderTypeString(int type) {
-        switch (type) {
-            case GL_FRAGMENT_SHADER:
-                return "fragment";
-            case GL_VERTEX_SHADER:
-                return "vertex";
-            default:
-                return String.format("unknown type[0x%s]", Integer.toHexString(type));
-        }
-    }
 
     /**
      * Checks to see if a GLES error has been raised.
@@ -211,24 +111,4 @@ public class GlUtil {
         return fb;
     }
 
-    /**
-     * Writes GL version info to the log.
-     */
-    public static void logVersionInfo() {
-        logger.log(String.format("vendor  : %s", glGetString(GL_VENDOR)));
-        logger.log(String.format("renderer: %s", glGetString(GL_RENDERER)));
-        logger.log(String.format("version : %s", glGetString(GL_VERSION)));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
-                && GLState.getGlVersion() == GLState.GLVersion.GLES_30) {
-            int[] values = new int[1];
-            GLES30.glGetIntegerv(GLES30.GL_MAJOR_VERSION, values, 0);
-            int majorVersion = values[0];
-            GLES30.glGetIntegerv(GLES30.GL_MINOR_VERSION, values, 0);
-            int minorVersion = values[0];
-            if (glGetError() == GL_NO_ERROR) {
-                logger.log(String.format("iversion: %d.%d", majorVersion, minorVersion));
-            }
-        }
-    }
 }
