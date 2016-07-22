@@ -30,8 +30,8 @@ public class Texture {
     renderer = new GL2TextureRenderer();
   }
 
-  public void render(Program program) {
-    renderer.render(program);
+  public void render() {
+    renderer.render();
   }
 
   /**
@@ -72,7 +72,7 @@ public class Texture {
   }
 
   private interface TextureRenderer {
-    void render(Program program);
+    void render();
   }
 
   private static class GL2TextureRenderer implements TextureRenderer {
@@ -81,12 +81,11 @@ public class Texture {
         1, -1, 1, 1, -1, -1, -1, 1
     });
 
-    @Override public void render(Program program) {
-      int position = program.attribLocation("position");
-      GLState.setAttributeEnabled(position, true);
-      glVertexAttribPointer(position, 2, GL_FLOAT, false, 0, QUAD_VERTICES.rewind());
+    @Override public void render() {
+      GLState.setAttributeEnabled(0, true);
+      glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, QUAD_VERTICES.rewind());
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-      GLState.setAttributeEnabled(position, false);
+      GLState.setAttributeEnabled(0, false);
     }
   }
 }
