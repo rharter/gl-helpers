@@ -3,30 +3,40 @@ package com.pixite.common.sample;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.opengl.EGL14;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
+import android.view.Menu;
+import android.view.MenuItem;
 import com.ryanharter.android.gl.BitmapTexture;
 import com.ryanharter.android.gl.GLState;
 import com.ryanharter.android.gl.Program;
-
+import com.ryanharter.android.gl.WritableTexture;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.io.OutputStream;
+import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
+import static android.opengl.GLES20.GL_DITHER;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
+import static android.opengl.GLES20.glDisable;
 
 public class MainActivity extends AppCompatActivity {
 
   private static final String TAG = MainActivity.class.getSimpleName();
   GLSurfaceView surface;
+  Renderer renderer;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -34,7 +44,32 @@ public class MainActivity extends AppCompatActivity {
     surface = (GLSurfaceView) findViewById(R.id.surface);
 
     surface.setEGLContextClientVersion(2);
-    surface.setRenderer(new Renderer(this));
+    surface.setEGLConfigChooser(new GLSurfaceView.EGLConfigChooser() {
+      @Override
+      public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
+        int attribs[] = {
+            EGL14.EGL_RENDERABLE_TYPE, 4,
+            EGL14.EGL_RED_SIZE, 8,
+            EGL14.EGL_GREEN_SIZE, 8,
+            EGL14.EGL_BLUE_SIZE, 8,
+            EGL14.EGL_ALPHA_SIZE, 8,
+            EGL14.EGL_DEPTH_SIZE, 24,
+            EGL14.EGL_SAMPLE_BUFFERS, 1,
+            EGL14.EGL_SAMPLES, 4,
+            EGL14.EGL_NONE
+        };
+        EGLConfig[] configs = new EGLConfig[1];
+        int[] configCounts = new int[1];
+        egl.eglChooseConfig(display, attribs, configs, 1, configCounts);
+
+        if (configCounts[0] == 0) {
+          return null;
+        } else {
+          return configs[0];
+        }
+      }
+    });
+    surface.setRenderer(renderer = new Renderer(this));
     surface.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
   }
 
@@ -43,15 +78,74 @@ public class MainActivity extends AppCompatActivity {
     surface.requestRender();
   }
 
+  @Override public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.activity_main, menu);
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.export_read_pixels:
+        surface.queueEvent(new Runnable() {
+          @Override public void run() {
+            exportReadPixels();
+          }
+        });
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
+    }
+  }
+
+  void exportReadPixels() {
+    long start = System.currentTimeMillis();
+    final int width = renderer.width;
+    final int height = renderer.height;
+    WritableTexture exportTexture = new WritableTexture(4096, 4096);
+    exportTexture.bindFramebuffer();
+
+    glDisable(GL_DITHER);
+    renderer.onSurfaceChanged(null, 4096, 4096);
+    renderer.render(true);
+
+    Bitmap bitmap = exportTexture.getBitmap();
+    writeBitmap("read_pixels", bitmap);
+
+    exportTexture.unbindFramebuffer();
+    renderer.onSurfaceChanged(null, width, height);
+
+    Log.d(TAG, "Exported image using ReadPixels in " + (System.currentTimeMillis() - start) + "ms");
+  }
+
+  private void writeBitmap(String prefix, Bitmap bitmap) {
+    OutputStream out = null;
+    try {
+      File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+          prefix + ".jpg");
+      out = new FileOutputStream(file);
+      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (out != null) {
+        try {
+          out.close();
+        } catch (IOException e) {
+          // no op
+        }
+      }
+    }
+  }
+
   private class Renderer implements GLSurfaceView.Renderer {
 
     Context context;
     SimpleProgram simpleProgram;
     BitmapTexture image;
 
-    private int width, height;
+    int width, height;
 
-    public Renderer(Context context) {
+    Renderer(Context context) {
       this.context = context.getApplicationContext();
     }
 
@@ -69,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
     private void intiGLState() {
       GLState.reset();
       GLState.setAttributeEnabled(0, true);
-      glClearColor(1, 1, 1, 1);
     }
 
     private void initTextures() {
@@ -88,10 +181,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override public void onDrawFrame(GL10 gl) {
+      render(false);
+    }
+
+    public void render(boolean export) {
       if (image == null) {
         return;
       }
 
+      glClearColor(1, 1, 1, 1);
       glClear(GL_COLOR_BUFFER_BIT);
       GLState.setBlend(true, true);
 
@@ -106,12 +204,14 @@ public class MainActivity extends AppCompatActivity {
       if (imageAspect > windowAspect) {
         // image is wider
         Matrix.orthoM(mvpMatrix, 0, -1, 1, -1 / imageAspect, 1 / imageAspect, -1, 1);
-      } else {
-        Matrix.orthoM(mvpMatrix, 0, -imageAspect, imageAspect, -1, 1, -1, 1);
+      } else if (imageAspect < windowAspect) {
+        Matrix.orthoM(mvpMatrix, 0, -windowAspect / imageAspect, windowAspect / imageAspect, -1, 1, -1, 1);
       }
 
       // flip
-      Matrix.scaleM(mvpMatrix, 0, 1, -1, 1);
+      if (!export) {
+        Matrix.scaleM(mvpMatrix, 0, 1, -1, 1);
+      }
 
       // add some padding
       Matrix.scaleM(mvpMatrix, 0, .8f, .8f, 1);
@@ -121,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
       image.bind(0);
       simpleProgram.bindImage(0);
 
-      image.render();
+      GLState.render();
     }
   }
 

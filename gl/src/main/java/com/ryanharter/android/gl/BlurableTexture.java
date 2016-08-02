@@ -53,7 +53,7 @@ public class BlurableTexture extends WritableTexture {
       texelOffset[1] = incrementAmount * aspect;
       blurProgram.bindTexelOffset(texelOffset);
 
-      render();
+      GLState.render();
 
       intTexture.unbindFramebuffer(true);
 
@@ -68,7 +68,7 @@ public class BlurableTexture extends WritableTexture {
       texelOffset[1] = 0;
       blurProgram.bindTexelOffset(texelOffset);
 
-      render();
+      GLState.render();
       unbindFramebuffer(true);
 
       incrementAmount = amount / quality;
@@ -85,39 +85,29 @@ public class BlurableTexture extends WritableTexture {
 
     private static final String VERTEX_SHADER = ""
         + "attribute vec4 vertexAttribPosition;\n"
-        + "uniform vec2 texelOffset;\n"
         + "varying highp vec2 v_textureCoordinate;\n"
-        + "varying vec2 blurCoordinates[9];\n"
         + "void main()\n"
         + "{\n"
-        + "    vec2 inputTextureCoordinate = vertexAttribPosition.xy * 0.5 + 0.5;\n"
-        + "    blurCoordinates[0] = inputTextureCoordinate.xy;\n"
-        + "    blurCoordinates[1] = inputTextureCoordinate.xy + texelOffset;\n"
-        + "    blurCoordinates[2] = inputTextureCoordinate.xy - texelOffset;\n"
-        + "    blurCoordinates[3] = inputTextureCoordinate.xy + texelOffset * 2.0;\n"
-        + "    blurCoordinates[4] = inputTextureCoordinate.xy - texelOffset * 2.0;\n"
-        + "    blurCoordinates[5] = inputTextureCoordinate.xy + texelOffset * 3.0;\n"
-        + "    blurCoordinates[6] = inputTextureCoordinate.xy - texelOffset * 3.0;\n"
-        + "    blurCoordinates[7] = inputTextureCoordinate.xy + texelOffset * 4.0;\n"
-        + "    blurCoordinates[8] = inputTextureCoordinate.xy - texelOffset * 4.0;\n"
+        + "    v_textureCoordinate = vertexAttribPosition.xy * 0.5 + 0.5;\n"
         + "    gl_Position = vertexAttribPosition;\n"
         + "}\n";
 
     private static final String FRAGMENT_SHADER = ""
         + "uniform sampler2D inputImageTexture;\n"
-        + "varying vec2 blurCoordinates[9];\n"
+        + "uniform vec2 texelOffset;\n"
+        + "varying highp vec2 v_textureCoordinate;\n"
         + "void main()\n"
         + "{\n"
         + "    lowp vec4 sum = vec4(0.0);\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[0]) * 0.1642;\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[1]) * 0.1531;\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[2]) * 0.1531;\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[3]) * 0.1224;\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[4]) * 0.1224;\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[3]) * 0.0918;\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[4]) * 0.0918;\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[3]) * 0.0510;\n"
-        + "    sum += texture2D(inputImageTexture, blurCoordinates[4]) * 0.0510;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate) * 0.1642;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate + texelOffset) * 0.1531;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate - texelOffset) * 0.1531;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate + texelOffset * 1.8) * 0.1224;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate - texelOffset * 1.8) * 0.1224;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate + texelOffset * 2.2) * 0.0918;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate - texelOffset * 2.2) * 0.0918;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate + texelOffset * 2.6) * 0.0510;\n"
+        + "    sum += texture2D(inputImageTexture, v_textureCoordinate - texelOffset * 2.6) * 0.0510;\n"
         + "    gl_FragColor = sum;\n"
         + "}";
 

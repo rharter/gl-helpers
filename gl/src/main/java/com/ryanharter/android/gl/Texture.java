@@ -1,10 +1,5 @@
 package com.ryanharter.android.gl;
 
-import android.graphics.Bitmap;
-import android.opengl.GLES11Ext;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
 import static android.opengl.GLES20.GL_TEXTURE_2D;
 import static android.opengl.GLES20.glDeleteTextures;
 import static android.opengl.GLES20.glGenTextures;
@@ -19,21 +14,6 @@ public class Texture {
 
   public Texture() {
     glGenTextures(1, textureId, 0);
-  }
-
-  /**
-   * Creates a new Bitmap based on the current Texture.
-   */
-  public Bitmap getBitmap(int width, int height) {
-    ByteBuffer buffer = ByteBuffer.allocateDirect(width * width * 4);
-    buffer.order(ByteOrder.nativeOrder());
-
-    bind(0);
-    GLES11Ext.glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, buffer);
-
-    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-    bitmap.copyPixelsFromBuffer(buffer.rewind());
-    return bitmap;
   }
 
   public void bind(int unit) {

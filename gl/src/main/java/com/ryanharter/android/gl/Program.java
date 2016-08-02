@@ -162,8 +162,11 @@ public class Program {
             out.append('\n');
           }
           out.append("#line 2").append('\n');
+          added = true;
         }
-        out.append(line).append('\n');
+        if (!line.startsWith("#version ")) {
+          out.append(line).append('\n');
+        }
       }
       return out.toString();
     } catch (IOException e) {

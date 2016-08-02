@@ -1,5 +1,9 @@
 package com.ryanharter.android.gl;
 
+import android.graphics.Bitmap;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 import static android.opengl.GLES20.GL_CLAMP_TO_EDGE;
 import static android.opengl.GLES20.GL_COLOR_ATTACHMENT0;
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
@@ -19,22 +23,32 @@ import static android.opengl.GLES20.GL_TEXTURE_WRAP_S;
 import static android.opengl.GLES20.GL_TEXTURE_WRAP_T;
 import static android.opengl.GLES20.GL_UNSIGNED_BYTE;
 import static android.opengl.GLES20.GL_VIEWPORT;
+import static android.opengl.GLES20.glBindBuffer;
 import static android.opengl.GLES20.glBindFramebuffer;
 import static android.opengl.GLES20.glBindRenderbuffer;
 import static android.opengl.GLES20.glBindTexture;
+import static android.opengl.GLES20.glBufferData;
 import static android.opengl.GLES20.glCheckFramebufferStatus;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
 import static android.opengl.GLES20.glDeleteBuffers;
 import static android.opengl.GLES20.glFramebufferRenderbuffer;
 import static android.opengl.GLES20.glFramebufferTexture2D;
+import static android.opengl.GLES20.glGenBuffers;
 import static android.opengl.GLES20.glGenFramebuffers;
 import static android.opengl.GLES20.glGenRenderbuffers;
+import static android.opengl.GLES20.glGetError;
 import static android.opengl.GLES20.glGetIntegerv;
+import static android.opengl.GLES20.glReadPixels;
 import static android.opengl.GLES20.glRenderbufferStorage;
 import static android.opengl.GLES20.glTexImage2D;
 import static android.opengl.GLES20.glTexParameteri;
 import static android.opengl.GLES20.glViewport;
+import static android.opengl.GLES30.GL_DYNAMIC_READ;
+import static android.opengl.GLES30.GL_PIXEL_PACK_BUFFER;
+import static android.opengl.GLES30.glMapBufferRange;
+import static android.opengl.GLES30.glReadBuffer;
+import static android.opengl.GLES30.glUnmapBuffer;
 
 /**
  * An OpenGL texture that also has the appropriate framebuffers so that
@@ -111,6 +125,62 @@ public class WritableTexture extends Texture {
     glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferId);
     glViewport(defaultViewportSize[0], defaultViewportSize[1], defaultViewportSize[2],
         defaultViewportSize[3]);
+  }
+
+  /**
+   * In order to get the Bitmap for a scene, you need to first bind the framebuffer with
+   * the desired size, render your scene, call getBitmap(), then unbind hte framebuffer.
+   *
+   * <pre><code>
+   * exportTexture.bindFramebuffer();
+   * renderScene();
+   * Bitmap bitmap = exportTexture.getBitmap();
+   * exportTexture.unbindFramebuffer();
+   * </code></pre>
+   *
+   * @return The bitmap that was rendered to the texture.
+   */
+  public Bitmap getBitmap() {
+    ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+
+    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    bitmap.copyPixelsFromBuffer(buffer.rewind());
+
+    return bitmap;
+  }
+
+  public Bitmap getBitmapPbo(int width, int height) {
+    int[] buffers = new int[1];
+    glGenBuffers(1, buffers, 0);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, buffers[0]);
+    glBufferData(GL_PIXEL_PACK_BUFFER, width * height * 4, null, GL_DYNAMIC_READ);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+    WritableTexture out = new WritableTexture(width, height);
+    out.bindFramebuffer();
+    GLState.render();
+    out.unbindFramebuffer();
+
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glGetError();
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, buffers[0]);
+    glGetError();
+    ByteBuffer pboBuffer = ByteBuffer.allocateDirect(4 * width * height);
+    pboBuffer.order(ByteOrder.nativeOrder());
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pboBuffer);
+    glGetError();
+    ByteBuffer buffer =
+        (ByteBuffer) glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, width * height * 4, GL_DYNAMIC_READ);
+    glGetError();
+    glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+    glGetError();
+
+    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+    bitmap.copyPixelsFromBuffer(buffer.rewind());
+
+    return bitmap;
   }
 
   /**
