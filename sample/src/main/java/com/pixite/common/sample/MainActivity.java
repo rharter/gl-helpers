@@ -27,10 +27,8 @@ import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
-import static android.opengl.GLES20.GL_DITHER;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
-import static android.opengl.GLES20.glDisable;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -104,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
     WritableTexture exportTexture = new WritableTexture(4096, 4096);
     exportTexture.bindFramebuffer();
 
-    glDisable(GL_DITHER);
     renderer.onSurfaceChanged(null, 4096, 4096);
     renderer.render(true);
 
