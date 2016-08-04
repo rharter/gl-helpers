@@ -13,6 +13,7 @@ import static android.opengl.GLES20.GL_ONE;
 import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
 import static android.opengl.GLES20.GL_TEXTURE0;
 import static android.opengl.GLES20.GL_VERSION;
+import static android.opengl.GLES20.GL_VIEWPORT;
 import static android.opengl.GLES20.glActiveTexture;
 import static android.opengl.GLES20.glBindBuffer;
 import static android.opengl.GLES20.glBindTexture;
@@ -23,6 +24,7 @@ import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glEnableVertexAttribArray;
 import static android.opengl.GLES20.glGetIntegerv;
 import static android.opengl.GLES20.glUseProgram;
+import static android.opengl.GLES20.glViewport;
 import static android.opengl.GLES30.glBindVertexArray;
 
 public final class GLState {
@@ -33,6 +35,7 @@ public final class GLState {
   private static Renderer renderer = new GLES2Renderer();
 
   private static int maxTextureSize = -1;
+  private static int[] viewport = new int[4];
   private static boolean blend = false;
   private static int program = -1;
   private static int textureUnit = -1;
@@ -71,6 +74,18 @@ public final class GLState {
       maxTextureSize = tempInt[0];
     }
     return maxTextureSize;
+  }
+
+  public static int[] getViewport() {
+    if (viewport[0] == 0 && viewport[1] == 0 && viewport[2] == 0 && viewport[3] == 0) {
+      glGetIntegerv(GL_VIEWPORT, viewport, 0);
+    }
+    return viewport;
+  }
+
+  public static void setViewport(int x, int y, int w, int h) {
+    viewport = new int[] {x, y, w, h};
+    glViewport(x, y, w, h);
   }
 
   public static void reset() {
