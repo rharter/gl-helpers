@@ -8,6 +8,7 @@ import android.util.SparseIntArray;
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_BLEND;
 import static android.opengl.GLES20.GL_ELEMENT_ARRAY_BUFFER;
+import static android.opengl.GLES20.GL_MAX_TEXTURE_SIZE;
 import static android.opengl.GLES20.GL_ONE;
 import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
 import static android.opengl.GLES20.GL_TEXTURE0;
@@ -20,6 +21,7 @@ import static android.opengl.GLES20.glDisable;
 import static android.opengl.GLES20.glDisableVertexAttribArray;
 import static android.opengl.GLES20.glEnable;
 import static android.opengl.GLES20.glEnableVertexAttribArray;
+import static android.opengl.GLES20.glGetIntegerv;
 import static android.opengl.GLES20.glUseProgram;
 import static android.opengl.GLES30.glBindVertexArray;
 
@@ -30,6 +32,7 @@ public final class GLState {
   // TODO choose the best renderer based on env
   private static Renderer renderer = new GLES2Renderer();
 
+  private static int maxTextureSize = -1;
   private static boolean blend = false;
   private static int program = -1;
   private static int textureUnit = -1;
@@ -38,6 +41,8 @@ public final class GLState {
   private static int vertexArray = -1;
   private static SparseIntArray textures = new SparseIntArray();
   private static SparseBooleanArray attributes = new SparseBooleanArray();
+
+  private static int[] tempInt = new int[16];
 
   public static void setLogger(Logger logger) {
     GlUtil.logger = logger;
@@ -58,6 +63,14 @@ public final class GLState {
     } else {
       return GLVersion.GL_UNKNOWN;
     }
+  }
+
+  public static int getMaxTextureSize() {
+    if (maxTextureSize < 0) {
+      glGetIntegerv(GL_MAX_TEXTURE_SIZE, tempInt, 0);
+      maxTextureSize = tempInt[0];
+    }
+    return maxTextureSize;
   }
 
   public static void reset() {
