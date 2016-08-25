@@ -15,7 +15,8 @@ import android.view.MenuItem;
 import com.ryanharter.android.gl.BitmapTexture;
 import com.ryanharter.android.gl.GLState;
 import com.ryanharter.android.gl.Program;
-import com.ryanharter.android.gl.WritableTexture;
+import com.ryanharter.android.gl.export.Exporter;
+import com.ryanharter.android.gl.export.ExporterCreator;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -83,10 +84,24 @@ public class MainActivity extends AppCompatActivity {
 
   @Override public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+      case R.id.export_default:
+        surface.queueEvent(new Runnable() {
+          @Override public void run() {
+            exportDefault();
+          }
+        });
+        return true;
       case R.id.export_read_pixels:
         surface.queueEvent(new Runnable() {
           @Override public void run() {
             exportReadPixels();
+          }
+        });
+        return true;
+      case R.id.export_pbo:
+        surface.queueEvent(new Runnable() {
+          @Override public void run() {
+            exportPBO();
           }
         });
         return true;
@@ -95,23 +110,41 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  void exportReadPixels() {
+  private void exportDefault() {
     long start = System.currentTimeMillis();
-    final int width = renderer.width;
-    final int height = renderer.height;
-    WritableTexture exportTexture = new WritableTexture(4096, 4096);
-    exportTexture.bindFramebuffer();
+    Exporter exporter = Exporter.Factory.createExporter(4096, 4096);
+    export(exporter, "exporter_auto", renderer.width, renderer.height);
+    Log.d(TAG, "Exported image using automatic exporter (" + exporter.getClass().getSimpleName() + ") in " + (System.currentTimeMillis() - start) + "ms");
+  }
 
+  private void exportReadPixels() {
+    long start = System.currentTimeMillis();
+    Exporter exporter = ExporterCreator.createGLES2Exporter(4096, 4096);
+    export(exporter, "exporter_read_pixels", renderer.width, renderer.height);
+    Log.d(TAG, "Exported image using ReadPixels in " + (System.currentTimeMillis() - start) + "ms");
+  }
+
+  void exportPBO() {
+    long start = System.currentTimeMillis();
+    Exporter exporter = Exporter.Factory.createExporter(4096, 4096);
+    export(exporter, "exporter_pbo", renderer.width, renderer.height);
+    Log.d(TAG, "Exported image using PBO in " + (System.currentTimeMillis() - start) + "ms");
+  }
+
+  private void export(Exporter exporter, String name, int width, int height) {
+    exporter.begin();
+
+    int[] origViewport = GLState.getViewport();
+    GLState.setViewport(0, 0, 4096, 4096);
     renderer.onSurfaceChanged(null, 4096, 4096);
     renderer.render(true);
 
-    Bitmap bitmap = exportTexture.getBitmap();
-    writeBitmap("read_pixels", bitmap);
+    Bitmap bitmap = exporter.export();
+    writeBitmap(name, bitmap);
 
-    exportTexture.unbindFramebuffer();
-    renderer.onSurfaceChanged(null, width, height);
-
-    Log.d(TAG, "Exported image using ReadPixels in " + (System.currentTimeMillis() - start) + "ms");
+    exporter.destroy();
+    GLState.setViewport(origViewport[0], origViewport[1], origViewport[2], origViewport[3]);
+    renderer.onSurfaceChanged(null, origViewport[2], origViewport[3]);
   }
 
   private void writeBitmap(String prefix, Bitmap bitmap) {

@@ -1,6 +1,5 @@
 package com.ryanharter.android.gl;
 
-import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -8,6 +7,7 @@ import android.util.SparseIntArray;
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_BLEND;
 import static android.opengl.GLES20.GL_ELEMENT_ARRAY_BUFFER;
+import static android.opengl.GLES20.GL_FRAMEBUFFER;
 import static android.opengl.GLES20.GL_MAX_TEXTURE_SIZE;
 import static android.opengl.GLES20.GL_ONE;
 import static android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA;
@@ -16,6 +16,7 @@ import static android.opengl.GLES20.GL_VERSION;
 import static android.opengl.GLES20.GL_VIEWPORT;
 import static android.opengl.GLES20.glActiveTexture;
 import static android.opengl.GLES20.glBindBuffer;
+import static android.opengl.GLES20.glBindFramebuffer;
 import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glBlendFunc;
 import static android.opengl.GLES20.glDisable;
@@ -39,6 +40,7 @@ public final class GLState {
   private static boolean blend = false;
   private static int program = -1;
   private static int textureUnit = -1;
+  private static int framebuffer = -1;
   private static int arrayBuffer = -1;
   private static int elementArrayBuffer = -1;
   private static int vertexArray = -1;
@@ -59,9 +61,9 @@ public final class GLState {
 
   public static GLVersion getGlVersion() {
     String version = GLES20.glGetString(GL_VERSION);
-    if (version.startsWith("OpenGL ES 2")) {
+    if (version.startsWith("OpenGL ES 2.")) {
       return GLVersion.GLES_20;
-    } else if (version.startsWith("OpenGL ES 3")) {
+    } else if (version.startsWith("OpenGL ES 3.")) {
       return GLVersion.GLES_30;
     } else {
       return GLVersion.GL_UNKNOWN;
@@ -105,37 +107,6 @@ public final class GLState {
     renderer.render();
   }
 
-  /**
-   * Creates a new Exporter and begins recording.
-   * @param width The width of the exported image.
-   * @param height The height of the exported image.
-   * @return An Exporter that can be used to get a Bitmap of the GL context.
-   */
-  public static Exporter beginExport(int width, int height) {
-    Exporter exporter = new Exporter(width, height);
-    exporter.begin();
-    return exporter;
-  }
-
-  /**
-   * Renders the current GL context to a Bitmap.
-   * @param width The width of the exported bitmap.
-   * @param height The height of the exported bitmap.
-   * @return A new Bitmap containing the current GL context.
-   */
-  public static Bitmap export(int width, int height) {
-    Exporter exporter = new Exporter(width, height);
-    exporter.begin();
-
-    render();
-
-    Bitmap bitmap = exporter.bitmap();
-
-    exporter.destroy();
-
-    return bitmap;
-  }
-
   public static void useProgram(int program) {
     if (program != GLState.program) {
       glUseProgram(program);
@@ -155,6 +126,13 @@ public final class GLState {
       setTextureUnit(unit);
       glBindTexture(target, texture);
       textures.put(unit, texture);
+    }
+  }
+
+  public static void bindFramebuffer(int framebuffer) {
+    if (GLState.framebuffer != framebuffer) {
+      glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+      GLState.framebuffer = framebuffer;
     }
   }
 
