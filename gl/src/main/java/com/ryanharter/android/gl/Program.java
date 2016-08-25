@@ -85,12 +85,44 @@ public class Program {
    * @return The compiled and linked program.
    */
   public static Program load(Context context, String asset, Map<String, String> defines) {
-    Program program = programs.get(asset);
+    return load(context, asset, asset, defines);
+  }
+
+  /**
+   * Loads a program from the Assets directory.
+   *
+   * <code>asset</code> should contain the path to the shader source, with the vertex shader
+   * having the <code>.vs</code> extension and the fragment shader having the <code>.fs</code>
+   * extension.
+   *
+   * @param context The context used to load the AssetManager.
+   * @param asset The path to the shader source files in the assets directory.
+   * @return The compiled and linked program.
+   */
+  public static Program load(Context context, String name, String asset) {
+    return load(context, name, asset, Collections.<String, String>emptyMap());
+  }
+
+  /**
+   * Loads a program from the Assets directory, adding the supplied defines to each shader.
+   *
+   * <code>asset</code> should contain the path to the shader source, with the vertex shader
+   * having the <code>.vs</code> extension and the fragment shader having the <code>.fs</code>
+   * extension.
+   *
+   * @param context The context used to load the AssetManager.
+   * @param name The name of the program.
+   * @param asset The path to the shader source files in the assets directory.
+   * @param defines The values to be defined in each of the shaders.
+   * @return The compiled and linked program.
+   */
+  public static Program load(Context context, String name, String asset, Map<String, String> defines) {
+    Program program = programs.get(name);
     if (program == null) {
       AssetManager assets = context.getAssets();
       String vs = Programs.readShader(assets, asset + ".vs", defines);
       String fs = Programs.readShader(assets, asset + ".fs", defines);
-      return load(asset, vs, fs, defines);
+      return load(name, vs, fs, defines);
     }
     return program;
   }
