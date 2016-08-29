@@ -98,6 +98,7 @@ public final class GLState {
     elementArrayBuffer = -1;
     vertexArray = -1;
     textures.clear();
+    Program.programs.clear();
   }
 
   /**

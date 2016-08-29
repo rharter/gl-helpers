@@ -32,7 +32,7 @@ import static android.opengl.GLES20.glUniformMatrix4fv;
 @SuppressLint("DefaultLocale")
 public class Program {
 
-  private static final ArrayMap<String, Program> programs = new ArrayMap<>();
+  static final ArrayMap<String, Program> programs = new ArrayMap<>();
 
   private String name;
   private int program;
