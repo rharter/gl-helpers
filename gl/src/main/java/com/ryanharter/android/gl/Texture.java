@@ -17,6 +17,7 @@ public class Texture {
   }
 
   public void bind(int unit) {
+    bindUnit = unit;
     GLState.bindTexture(unit, GL_TEXTURE_2D, textureId[0]);
   }
 

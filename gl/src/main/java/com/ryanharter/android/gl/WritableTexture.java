@@ -26,7 +26,6 @@ import static android.opengl.GLES20.GL_VIEWPORT;
 import static android.opengl.GLES20.glBindBuffer;
 import static android.opengl.GLES20.glBindFramebuffer;
 import static android.opengl.GLES20.glBindRenderbuffer;
-import static android.opengl.GLES20.glBindTexture;
 import static android.opengl.GLES20.glBufferData;
 import static android.opengl.GLES20.glCheckFramebufferStatus;
 import static android.opengl.GLES20.glClear;
@@ -92,7 +91,7 @@ public class WritableTexture extends Texture {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
 
     // unbind the texture before attaching it to the framebuffer
-    glBindTexture(GL_TEXTURE_2D, 0);
+    unbind();
 
     // create the framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, buffers[0]);
