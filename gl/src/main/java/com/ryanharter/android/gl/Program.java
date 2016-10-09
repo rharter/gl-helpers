@@ -17,6 +17,7 @@ import static android.opengl.GLES20.glGetAttribLocation;
 import static android.opengl.GLES20.glGetUniformLocation;
 import static android.opengl.GLES20.glUniform1f;
 import static android.opengl.GLES20.glUniform1i;
+import static android.opengl.GLES20.glUniform2f;
 import static android.opengl.GLES20.glUniform2fv;
 import static android.opengl.GLES20.glUniform3f;
 import static android.opengl.GLES20.glUniform4f;
@@ -339,6 +340,30 @@ public class Program {
       return;
     }
     glUniform1f(location, v);
+  }
+
+  /**
+   * Binds 2 floats to the vec2 uniform named <code>name</code>.
+   * @param name The name of the uniform to bind.
+   * @param x The x value to bind to the uniform.
+   * @param y The y value to bind to the uniform.
+   */
+  public void bindFloat2(String name, float x, float y) {
+    bindFloat2(uniformLocation(name), x, y);
+  }
+
+  /**
+   * Binds 2 floats to the vec2 uniform at <code>location</code>.
+   * @param location The location of the uniform to bind.
+   * @param x The x value to bind to the uniform.
+   * @param y The y value to bind to the uniform.
+   */
+  public void bindFloat2(int location, float x, float y) {
+    if (location < 0) {
+      GlUtil.logger.log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+      return;
+    }
+    glUniform2f(location, x, y);
   }
 
   /**
