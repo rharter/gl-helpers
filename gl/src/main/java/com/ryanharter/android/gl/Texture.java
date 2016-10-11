@@ -23,6 +23,7 @@ public class Texture {
 
   public void unbind() {
     if (bindUnit > -1) {
+      bindUnit = -1;
       GLState.bindTexture(bindUnit, GL_TEXTURE_2D, 0);
     }
   }
