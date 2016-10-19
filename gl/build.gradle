@@ -4,7 +4,7 @@ def platformVersion = 18
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.0"
+    buildToolsVersion "24.0.3"
 
     defaultConfig {
         minSdkVersion 16
@@ -33,12 +33,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    compile 'com.android.support:appcompat-v7:24.0.0'
-    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:support-core-utils:24.2.1'
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

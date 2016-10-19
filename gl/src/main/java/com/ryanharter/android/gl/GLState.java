@@ -35,6 +35,7 @@ public final class GLState {
   // TODO choose the best renderer based on env
   private static Renderer renderer = new GLES2Renderer();
 
+  private static GLVersion glVersion = GLVersion.GL_UNKNOWN;
   private static int maxTextureSize = -1;
   private static int[] viewport = new int[4];
   private static boolean blend = false;
@@ -60,14 +61,17 @@ public final class GLState {
   }
 
   public static GLVersion getGlVersion() {
-    String version = GLES20.glGetString(GL_VERSION);
-    if (version.startsWith("OpenGL ES 2.")) {
-      return GLVersion.GLES_20;
-    } else if (version.startsWith("OpenGL ES 3.")) {
-      return GLVersion.GLES_30;
-    } else {
-      return GLVersion.GL_UNKNOWN;
+    if (glVersion == GLVersion.GL_UNKNOWN) {
+      String version = GLES20.glGetString(GL_VERSION);
+      if (version != null && version.startsWith("OpenGL ES 2.")) {
+        return GLVersion.GLES_20;
+      } else if (version != null && version.startsWith("OpenGL ES 3.")) {
+        return GLVersion.GLES_30;
+      } else {
+        return GLVersion.GL_UNKNOWN;
+      }
     }
+    return glVersion;
   }
 
   public static int getMaxTextureSize() {
