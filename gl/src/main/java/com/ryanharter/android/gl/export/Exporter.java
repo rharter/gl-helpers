@@ -41,10 +41,8 @@ public interface Exporter {
         case GLES_30:
           return new PBOExporter(width, height);
         case GLES_20:
-          return new GLES2Exporter(width, height);
-        case GL_UNKNOWN:
         default:
-          throw new IllegalStateException("Unsupported OpenGL version.");
+          return new GLES2Exporter(width, height);
       }
     }
   }
