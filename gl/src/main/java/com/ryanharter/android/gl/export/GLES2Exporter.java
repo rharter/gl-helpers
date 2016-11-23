@@ -2,6 +2,7 @@ package com.ryanharter.android.gl.export;
 
 import android.graphics.Bitmap;
 import com.ryanharter.android.gl.GLState;
+import com.ryanharter.android.gl.exceptions.GLException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -58,7 +59,7 @@ final class GLES2Exporter implements Exporter {
     GLState.bindFramebuffer(ids[0]);
   }
 
-  @Override public Bitmap export() {
+  @Override public Bitmap export() throws GLException {
     if (destroyed) {
       throw new IllegalStateException("Exporter has already been destroyed.");
     }
@@ -68,7 +69,7 @@ final class GLES2Exporter implements Exporter {
     return bitmap;
   }
 
-  @Override public void export(Bitmap result) {
+  @Override public void export(Bitmap result) throws GLException {
     if (destroyed) {
       throw new IllegalStateException("Exporter has already been destroyed.");
     }

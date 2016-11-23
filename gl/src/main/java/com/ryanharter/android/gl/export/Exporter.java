@@ -2,6 +2,7 @@ package com.ryanharter.android.gl.export;
 
 import android.graphics.Bitmap;
 import com.ryanharter.android.gl.GLState;
+import com.ryanharter.android.gl.exceptions.GLException;
 
 /**
  * Exports GL state to bitmaps.
@@ -20,14 +21,14 @@ public interface Exporter {
    *
    * This ends the current recording sequence.  Call {@link #begin()} to start a new one.
    */
-  Bitmap export();
+  Bitmap export() throws GLException;
 
   /**
    * Writes the state that has been drawn since {@link #begin()} to <code>result</code>.
    *
    * This ends the current recording sequence.  Call {@link #begin()} to start a new one.
    */
-  void export(Bitmap result);
+  void export(Bitmap result) throws GLException;
 
   /**
    * Destroys all internal state of this exporter.  It cannot be reused

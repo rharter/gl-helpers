@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.os.Build;
 import com.ryanharter.android.gl.GLState;
+import com.ryanharter.android.gl.exceptions.GLException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -76,7 +77,7 @@ final class PBOExporter implements Exporter {
     GLState.bindFramebuffer(ids[1]);
   }
 
-  @Override public Bitmap export() {
+  @Override public Bitmap export() throws GLException {
     if (destroyed) {
       throw new IllegalStateException("Exporter has already been destroyed.");
     }
@@ -86,7 +87,7 @@ final class PBOExporter implements Exporter {
     return result;
   }
 
-  @Override public void export(Bitmap result) {
+  @Override public void export(Bitmap result) throws GLException {
     if (destroyed) {
       throw new IllegalStateException("Exporter has already been destroyed.");
     }
@@ -104,6 +105,12 @@ final class PBOExporter implements Exporter {
     glReadPixelsPBO(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
     ByteBuffer buffer = (ByteBuffer) glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, 4 * width * height, GL_MAP_READ_BIT);
+    if (buffer == null) {
+      GLException.throwGlError();
+      glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+      return;
+    }
+
     buffer.order(ByteOrder.nativeOrder());
     result.copyPixelsFromBuffer(buffer);
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);

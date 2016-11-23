@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.ryanharter.android.gl.BitmapTexture;
 import com.ryanharter.android.gl.GLState;
 import com.ryanharter.android.gl.Program;
+import com.ryanharter.android.gl.exceptions.GLException;
 import com.ryanharter.android.gl.export.Exporter;
 import com.ryanharter.android.gl.export.ExporterCreator;
 import java.io.File;
@@ -139,8 +140,12 @@ public class MainActivity extends AppCompatActivity {
     renderer.onSurfaceChanged(null, 4096, 4096);
     renderer.render(true);
 
-    Bitmap bitmap = exporter.export();
-    writeBitmap(name, bitmap);
+    try {
+      Bitmap bitmap = exporter.export();
+      writeBitmap(name, bitmap);
+    } catch (GLException e) {
+      e.printStackTrace();
+    }
 
     exporter.destroy();
     GLState.setViewport(origViewport[0], origViewport[1], origViewport[2], origViewport[3]);
