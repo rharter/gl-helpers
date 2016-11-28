@@ -12,7 +12,8 @@ public class GLException extends Exception {
 
   private final int error;
 
-  public GLException(int error) {
+  public GLException(String message, int error) {
+    super(message);
     this.error = error;
   }
 
@@ -25,25 +26,22 @@ public class GLException extends Exception {
     if ( errorString == null ) {
       errorString = "Unknown error 0x" + Integer.toHexString(error);
     }
-    return errorString;
+    return String.format("%s\n%s", super.getMessage(), errorString);
   }
 
-  public static void throwGlError() throws GLInvalidEnumException,
-      GLInvalidValueException,
-      GLInvalidOperationException,
-      GLOutOfMemoryException {
+  public static GLException getGlError(String message) {
     int error = glGetError();
     switch (error) {
       case GL_INVALID_ENUM:
-        throw new GLInvalidEnumException(error);
+        return new GLInvalidEnumException(message, error);
       case GL_INVALID_VALUE:
-        throw new GLInvalidValueException(error);
+        return new GLInvalidValueException(message, error);
       case GL_INVALID_OPERATION:
-        throw new GLInvalidOperationException(error);
+        return new GLInvalidOperationException(message, error);
       case GL_OUT_OF_MEMORY:
-        throw new GLOutOfMemoryException(error);
+        return new GLOutOfMemoryException(message, error);
       default:
-        // no op
+        return new GLException(message, error);
     }
   }
 }

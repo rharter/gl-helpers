@@ -2,8 +2,8 @@ package com.ryanharter.android.gl.exceptions;
 
 public class GLInvalidEnumException extends GLException {
 
-  public GLInvalidEnumException(int error) {
-    super(error);
+  public GLInvalidEnumException(String message, int error) {
+    super(message, error);
   }
 
 }
