@@ -106,8 +106,9 @@ final class PBOExporter implements Exporter {
 
     ByteBuffer buffer = (ByteBuffer) glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, 4 * width * height, GL_MAP_READ_BIT);
     if (buffer == null) {
+      GLException exception = GLException.getGlError("Received null buffer for range [w=" + width + ", h=" + height + "]");
       glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-      throw GLException.getGlError("Received null buffer for range [w=" + width + ", h=" + height + "]");
+      throw exception;
     }
 
     buffer.order(ByteOrder.nativeOrder());
