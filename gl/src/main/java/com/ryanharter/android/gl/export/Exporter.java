@@ -39,8 +39,8 @@ public interface Exporter {
   class Factory {
     public static Exporter createExporter(int width, int height) {
       switch (GLState.getGlVersion()) {
-        case GLES_30:
-          return new PBOExporter(width, height);
+        //case GLES_30:
+        //  return new PBOExporter(width, height);
         case GLES_20:
         default:
           return new GLES2Exporter(width, height);
