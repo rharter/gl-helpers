@@ -53,7 +53,9 @@ public class GLException extends Exception {
       error = glGetError();
     }
 
-    if (exceptions.size() == 1) {
+    if (exceptions.isEmpty()) {
+      return null;
+    } else if (exceptions.size() == 1) {
       return exceptions.get(0);
     } else {
       return new GLCompositeException(exceptions);

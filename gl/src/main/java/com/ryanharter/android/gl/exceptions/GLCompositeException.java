@@ -1,5 +1,6 @@
 package com.ryanharter.android.gl.exceptions;
 
+import android.opengl.GLU;
 import java.util.List;
 
 public class GLCompositeException extends GLException {
@@ -12,13 +13,13 @@ public class GLCompositeException extends GLException {
   }
 
   @Override public String getMessage() {
-    StringBuilder message = new StringBuilder("Multiple GL Errors:\n");
+    StringBuilder message = new StringBuilder("Multiple GL Errors: ");
     for (GLException exception : exceptions) {
-      message.append("  0x")
-          .append(Integer.toHexString(exception.getValue()))
-          .append(": ")
-          .append(exception.getMessage())
-          .append('\n');
+      String errorString = GLU.gluErrorString(exception.getValue());
+      if ( errorString == null ) {
+        errorString = "Unknown error 0x" + Integer.toHexString(exception.getValue());
+      }
+      message.append(" ").append(errorString);
     }
     return message.toString();
   }

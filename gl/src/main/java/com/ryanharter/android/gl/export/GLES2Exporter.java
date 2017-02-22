@@ -32,11 +32,15 @@ final class GLES2Exporter implements Exporter {
   private final int width;
   private final int height;
   private final int[] ids = new int[2];
+  private final ByteBuffer buffer;
   private boolean destroyed;
 
   public GLES2Exporter(int width, int height) {
     this.width = width;
     this.height = height;
+
+    buffer = ByteBuffer.allocateDirect(width * height * 4);
+    buffer.order(ByteOrder.LITTLE_ENDIAN);
 
     glGenFramebuffers(1, ids, 0);
     glGenTextures(1, ids, 1);
@@ -82,8 +86,9 @@ final class GLES2Exporter implements Exporter {
       throw new IllegalArgumentException("Result bitmap must have ARGB_8888 config.");
     }
 
-    ByteBuffer buffer = ByteBuffer.allocate(width * height * 4).order(ByteOrder.nativeOrder());
+    buffer.rewind();
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    buffer.rewind();
     result.copyPixelsFromBuffer(buffer);
 
     GLState.bindFramebuffer(0);
