@@ -45,7 +45,7 @@ public class Program {
 
   private boolean isValid;
 
-  private Program(String name) {
+  public Program(String name) {
     this.name = name;
   }
 
