@@ -1,8 +1,11 @@
 package com.ryanharter.android.gl;
 
 import android.opengl.GLES20;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
+import java.util.Arrays;
 
 import static android.opengl.GLES20.GL_ARRAY_BUFFER;
 import static android.opengl.GLES20.GL_BLEND;
@@ -95,13 +98,18 @@ public final class GLState {
   }
 
   public static void reset() {
+    glVersion = GLVersion.GL_UNKNOWN;
+    maxTextureSize = -1;
     blend = false;
     program = -1;
     textureUnit = -1;
+    framebuffer = -1;
     arrayBuffer = -1;
     elementArrayBuffer = -1;
     vertexArray = -1;
     textures.clear();
+    attributes.clear();
+    Arrays.fill(viewport, 0);
     Program.programs.clear();
   }
 
@@ -186,6 +194,7 @@ public final class GLState {
     return false;
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
   public static boolean bindVertexArray(int array) {
     if (vertexArray != array) {
       glBindVertexArray(array);
