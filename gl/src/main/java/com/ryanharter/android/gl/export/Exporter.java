@@ -39,9 +39,11 @@ public interface Exporter {
   class Factory {
     public static Exporter createExporter(int width, int height) {
       switch (GLState.getGlVersion()) {
-        case GLES_30:
-          return new PBOExporter(width, height);
-        case GLES_20:
+        // TODO There are issues with the PBO exporter sometimes returning a null buffer
+        // but not reporting a GL error.  Until this is resolved, just use the GLES2 exporter.
+        //case GLES_30:
+        //  return new PBOExporter(width, height);
+        //case GLES_20:
         default:
           return new GLES2Exporter(width, height);
       }
