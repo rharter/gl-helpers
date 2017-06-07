@@ -28,11 +28,10 @@ import static android.opengl.GLES20.glTexParameteri;
 
 final class GLES2Exporter implements Exporter {
 
-
   private final int width;
   private final int height;
   private final int[] ids = new int[2];
-  private final ByteBuffer buffer;
+  private ByteBuffer buffer;
   private boolean destroyed;
 
   public GLES2Exporter(int width, int height) {
