@@ -96,6 +96,7 @@ final class GLES2Exporter implements Exporter {
 
   public void destroy() {
     destroyed = true;
+    buffer = null;
     GLState.bindFramebuffer(0);
     glDeleteFramebuffers(1, ids, 0);
     glDeleteTextures(1, ids, 1);
