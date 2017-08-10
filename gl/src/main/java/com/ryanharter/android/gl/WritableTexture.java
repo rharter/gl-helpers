@@ -68,6 +68,10 @@ public class WritableTexture extends Texture {
   }
 
   public WritableTexture(int width, int height, boolean hasDepth) {
+    this(width, height, hasDepth, GL_RGBA);
+  }
+
+  public WritableTexture(int width, int height, boolean hasDepth, int format) {
     super();
     this.width = width;
     this.height = height;
@@ -88,7 +92,7 @@ public class WritableTexture extends Texture {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // create the texture in memory
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, null);
 
     // unbind the texture before attaching it to the framebuffer
     unbind();
