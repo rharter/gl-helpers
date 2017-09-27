@@ -251,7 +251,7 @@ public class Program {
   public void destroy() {
     if (isValid()) {
       Programs.destroy(program, vertexShader, fragmentShader);
-      isValid = false
+      isValid = false;
     }
   }
 

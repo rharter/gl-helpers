@@ -98,6 +98,7 @@ public final class GLState {
   }
 
   public static void reset() {
+    logger.log("Resetting state.");
     glVersion = GLVersion.GL_UNKNOWN;
     maxTextureSize = -1;
     blend = false;
@@ -124,6 +125,8 @@ public final class GLState {
     if (program != GLState.program) {
       glUseProgram(program);
       GLState.program = program;
+    } else {
+      logger.log("Attempt to use program " + program + " but it's already used, skipping.");
     }
   }
 
@@ -131,6 +134,8 @@ public final class GLState {
     if (textureUnit != GLState.textureUnit) {
       glActiveTexture(GL_TEXTURE0 + textureUnit);
       GLState.textureUnit = textureUnit;
+    } else {
+      logger.log("Attempt to set active texture unit " + textureUnit + " but it is already set, skipping.");
     }
   }
 
@@ -139,6 +144,8 @@ public final class GLState {
       setTextureUnit(unit);
       glBindTexture(target, texture);
       textures.put(unit, texture);
+    } else {
+      logger.log("Attempt to bind texture " + texture + " to unit " + unit + " but it is already bounds, skipping.");
     }
   }
 
@@ -146,6 +153,8 @@ public final class GLState {
     if (GLState.framebuffer != framebuffer) {
       glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
       GLState.framebuffer = framebuffer;
+    } else {
+      logger.log("Attempt to bind Framebuffer " + framebuffer + " but it is already bound, skipping.");
     }
   }
 
@@ -162,6 +171,9 @@ public final class GLState {
         glDisable(GL_BLEND);
       }
       GLState.blend = blend;
+    } else {
+      String enable = blend ? "enable" : "disable";
+      logger.log("Attempt to " + enable + " blend mode, but it's already " + GLState.blend + ", skipping");
     }
   }
 
@@ -173,6 +185,9 @@ public final class GLState {
         glDisableVertexAttribArray(index);
       }
       attributes.put(index, enabled);
+    } else {
+      String enable = enabled ? "enable" : "disable";
+      logger.log("Attempt to " + enable + " attribute " + index + ", but it's already " + enable + "d, skipping.");
     }
   }
 
@@ -181,6 +196,8 @@ public final class GLState {
       glBindBuffer(GL_ARRAY_BUFFER, buffer);
       arrayBuffer = buffer;
       return true;
+    } else {
+      logger.log("Attempt to bind array buffer " + buffer + " but it's already bound, skipping.");
     }
     return false;
   }
@@ -190,6 +207,8 @@ public final class GLState {
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
       elementArrayBuffer = buffer;
       return true;
+    } else {
+      logger.log("Attempt to bind element array buffer " + buffer + " but it's already bound, skipping.");
     }
     return false;
   }
@@ -200,6 +219,8 @@ public final class GLState {
       glBindVertexArray(array);
       vertexArray = array;
       return true;
+    } else {
+      logger.log("Attempt to bind vertex array buffer " + array + " but it's already bound, skipping.");
     }
     return false;
   }
