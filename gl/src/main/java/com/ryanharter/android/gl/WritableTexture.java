@@ -116,7 +116,7 @@ public class WritableTexture extends Texture {
 
     int error = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     if (error != GL_FRAMEBUFFER_COMPLETE) {
-      GlUtil.logger.log(String.format("Failed to make complete Framebuffer: 0x%s", Integer.toHexString(error)));
+      GLState.logger.log(String.format("Failed to make complete Framebuffer: 0x%s", Integer.toHexString(error)));
       return;
     }
 

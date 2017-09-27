@@ -64,7 +64,7 @@ final class Programs {
     int[] compiled = new int[1];
     glGetShaderiv(shader, GL_COMPILE_STATUS, compiled, 0);
     if (compiled[0] == 0) {
-      GlUtil.logger.log(String.format("Could not compile shader: %s", glGetShaderInfoLog(shader)));
+      GLState.logger.log(String.format("Could not compile shader: %s", glGetShaderInfoLog(shader)));
       glDeleteShader(shader);
       shader = 0;
     }

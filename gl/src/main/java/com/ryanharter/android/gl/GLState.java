@@ -54,7 +54,7 @@ public final class GLState {
   private static int[] tempInt = new int[16];
 
   public static void setLogger(Logger logger) {
-    GlUtil.logger = logger;
+    GLState.logger = logger;
   }
 
   private GLState() { }

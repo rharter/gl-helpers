@@ -24,8 +24,6 @@ import static android.opengl.GLES20.glTexParameteri;
  */
 public class GlUtil {
 
-    static Logger logger = GLState.logger;
-
     /** Identity matrix for general bind.  Don't modify or life will get weird. */
     public static final float[] IDENTITY_MATRIX = new float[] {
         1, 0, 0, 0,
@@ -54,7 +52,7 @@ public class GlUtil {
                 throw new RuntimeException(e);
             }
 
-            logger.log(e.getMessage());
+            GLState.logger.log(e.getMessage());
         }
     }
 
