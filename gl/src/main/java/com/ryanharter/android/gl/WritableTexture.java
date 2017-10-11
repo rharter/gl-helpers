@@ -191,13 +191,13 @@ public class WritableTexture extends Texture {
    */
   public void bindFramebuffer() {
     // get the old values
-    glGetIntegerv(GL_VIEWPORT, defaultViewportSize, 0);
+    GLState.getViewport(defaultViewportSize);
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, temp, 0);
     defaultFramebufferId = temp[0];
 
     // bind the framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, buffers[0]);
-    glViewport(0, 0, width, height);
+    GLState.bindFramebuffer(buffers[0]);
+    GLState.setViewport(0, 0, width, height);
   }
 
   /**
@@ -215,11 +215,11 @@ public class WritableTexture extends Texture {
    */
   public void unbindFramebuffer(boolean restoreState) {
     if (restoreState) {
-      glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferId);
-      glViewport(defaultViewportSize[0], defaultViewportSize[1], defaultViewportSize[2],
+      GLState.bindFramebuffer(defaultFramebufferId);
+      GLState.setViewport(defaultViewportSize[0], defaultViewportSize[1], defaultViewportSize[2],
           defaultViewportSize[3]);
     } else {
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      GLState.bindFramebuffer(0);
     }
   }
 
