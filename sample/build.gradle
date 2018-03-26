@@ -1,13 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
-  compileSdkVersion 24
-  buildToolsVersion '25.0.0'
-
   defaultConfig {
     applicationId "com.pixite.common.sample"
-    minSdkVersion 18
-    targetSdkVersion 24
     versionCode 1
     versionName "1.0"
 
@@ -22,9 +18,9 @@ android {
 }
 
 dependencies {
-  compile project(':gl')
-  compile 'com.android.support:appcompat-v7:24.2.1'
-  compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha3'
+  implementation project(':gl')
+  implementation libs.supportAppCompat
+  implementation libs.supportConstraintLayout
 
-  testCompile 'junit:junit:4.12'
+  testImplementation libs.junit4
 }

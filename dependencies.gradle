@@ -1,0 +1,16 @@
+ext {
+  vers = [
+      compileSdkVersion: 26,
+      targetSdkVersion: 26,
+      minSdkVersion: 19,
+      buildToolsVersion: '26.0.2'
+  ]
+
+  libs = [
+      junit4: 'junit:junit:4.12',
+      kotlinStdLib: "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version",
+      supportAppCompat: 'com.android.support:appcompat-v7:27.0.1',
+      supportConstraintLayout: 'com.android.support.constraint:constraint-layout:1.1.0-beta3',
+      supportCore: 'com.android.support:support-core-utils:24.2.1'
+  ]
+}

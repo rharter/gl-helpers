@@ -11,8 +11,8 @@ public class BlurableTexture extends WritableTexture {
   private WritableTexture intTexture;
 
   public BlurableTexture(int width, int height, boolean hasDepth) {
-    super(width, height, hasDepth);
-    intTexture = new WritableTexture(width, height, false);
+    super(width, height, hasDepth, false);
+    intTexture = new WritableTexture(width, height, false, false);
 
     switch (GLState.getGlVersion()) {
       case GLES_20:
@@ -33,7 +33,7 @@ public class BlurableTexture extends WritableTexture {
   public void blur(float amount, int quality) {
     amount *= 0.01;
 
-    final float aspect = (float) width / height;
+    final float aspect = (float) getWidth() / getHeight();
     float incrementAmount = amount;
     for (int i = 0; i < quality; i++) {
       // bind the intermediate texture

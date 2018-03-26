@@ -3,6 +3,7 @@ package com.ryanharter.android.gl;
 import android.opengl.GLES20;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 import java.util.Arrays;
@@ -48,7 +49,7 @@ public final class GLState {
   private static int arrayBuffer = -1;
   private static int elementArrayBuffer = -1;
   private static int vertexArray = -1;
-  private static SparseIntArray textures = new SparseIntArray();
+  private static SparseArray<SparseIntArray> textures = new SparseArray<>();
   private static SparseBooleanArray attributes = new SparseBooleanArray();
 
   private static int[] tempInt = new int[16];
@@ -147,10 +148,16 @@ public final class GLState {
   }
 
   public static void bindTexture(int unit, int target, int texture) {
-    if (textures.get(unit) != texture) {
+    SparseIntArray cache = textures.get(target);
+    if (cache == null) {
+      cache = new SparseIntArray();
+      textures.put(target, cache);
+    }
+
+    if (cache.get(unit) != texture) {
       setTextureUnit(unit);
       glBindTexture(target, texture);
-      textures.put(unit, texture);
+      cache.put(unit, texture);
     }
   }
 
