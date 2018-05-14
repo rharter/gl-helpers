@@ -9,8 +9,12 @@ ext {
   libs = [
       junit4: 'junit:junit:4.12',
       kotlinStdLib: "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version",
+      kotlinRuntime: "org.jetbrains.kotlin:kotlin-runtime:$kotlin_version",
+      kotlinTest: "org.jetbrains.kotlin:kotlin-test:$kotlin_version",
+      mockitoKotlin: "com.nhaarman:mockito-kotlin:1.5.0",
       supportAppCompat: 'com.android.support:appcompat-v7:27.0.1',
       supportConstraintLayout: 'com.android.support.constraint:constraint-layout:1.1.0-beta3',
-      supportCore: 'com.android.support:support-core-utils:24.2.1'
+      supportCore: 'com.android.support:support-core-utils:24.2.1',
+      truth: "com.google.truth:truth:0.39",
   ]
 }

@@ -47,7 +47,7 @@ public class BitmapTexture extends Texture {
 
       int error = glGetError();
       if (error == GL_OUT_OF_MEMORY) {
-        GLState.logger.log(String.format("Received out of memory error loading bitmap of size[%dx%d]",
+        GLState.INSTANCE.getLogger().log(String.format("Received out of memory error loading bitmap of size[%dx%d]",
             bitmap.getWidth(), bitmap.getHeight()));
 
         // shrink the image dimensions by 2

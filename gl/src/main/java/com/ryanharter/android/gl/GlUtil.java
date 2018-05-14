@@ -52,7 +52,7 @@ public class GlUtil {
                 throw new RuntimeException(e);
             }
 
-            GLState.logger.log(e.getMessage());
+            GLState.INSTANCE.getLogger().log(e.getMessage());
         }
     }
 

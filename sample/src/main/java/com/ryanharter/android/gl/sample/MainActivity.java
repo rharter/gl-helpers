@@ -136,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
   private void export(Exporter exporter, String name, int width, int height) {
     exporter.begin();
 
-    int[] origViewport = GLState.getViewport();
-    GLState.setViewport(0, 0, 4096, 4096);
+    int[] origViewport = GLState.INSTANCE.getViewport();
+    GLState.INSTANCE.setViewport(0, 0, 4096, 4096);
     renderer.onSurfaceChanged(null, 4096, 4096);
     renderer.render(true);
 
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     exporter.destroy();
-    GLState.setViewport(origViewport[0], origViewport[1], origViewport[2], origViewport[3]);
+    GLState.INSTANCE.setViewport(origViewport[0], origViewport[1], origViewport[2], origViewport[3]);
     renderer.onSurfaceChanged(null, origViewport[2], origViewport[3]);
   }
 
@@ -197,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void intiGLState() {
-      GLState.reset();
-      GLState.setAttributeEnabled(0, true);
+      GLState.INSTANCE.reset();
+      GLState.INSTANCE.setAttributeEnabled(0, true);
     }
 
     private void initTextures() {
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
       glClearColor(1, 1, 1, 1);
       glClear(GL_COLOR_BUFFER_BIT);
-      GLState.setBlend(true, true);
+      GLState.INSTANCE.setBlend(true, true);
 
       simpleProgram.use();
 
@@ -257,13 +257,13 @@ public class MainActivity extends AppCompatActivity {
       image.bind(0);
       simpleProgram.bindImage(0);
 
-      GLState.render();
+      GLState.INSTANCE.render();
     }
   }
 
   private static class ProgramFactory {
     static SimpleProgram getProgram() {
-      switch (GLState.getGlVersion()) {
+      switch (GLState.INSTANCE.getGlVersion()) {
         case GLES_30:
           return new GLES3SimpleProgram();
         default:

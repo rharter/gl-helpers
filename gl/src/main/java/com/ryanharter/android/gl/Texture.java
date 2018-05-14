@@ -18,12 +18,12 @@ public class Texture {
 
   public void bind(int unit) {
     bindUnit = unit;
-    GLState.bindTexture(unit, GL_TEXTURE_2D, textureId[0]);
+    GLState.INSTANCE.bindTexture(unit, GL_TEXTURE_2D, textureId[0]);
   }
 
   public void unbind() {
     if (bindUnit > -1) {
-      GLState.bindTexture(bindUnit, GL_TEXTURE_2D, 0);
+      GLState.INSTANCE.bindTexture(bindUnit, GL_TEXTURE_2D, 0);
       bindUnit = -1;
     }
   }

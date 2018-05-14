@@ -4,32 +4,38 @@ apply plugin: 'kotlin-android'
 def platformVersion = 18
 
 android {
-    defaultConfig {
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                arguments "-DTARGET_PLATFORM_VERSION=${platformVersion}"
-            }
-        }
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+  defaultConfig {
+    versionCode 1
+    versionName "1.0"
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
+      cmake {
+        arguments "-DTARGET_PLATFORM_VERSION=${platformVersion}"
+      }
     }
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
+    }
+  }
 }
 
 dependencies {
-    implementation libs.supportCore
-    implementation libs.kotlinStdLib
+  implementation libs.supportCore
+  implementation libs.kotlinStdLib
+  testImplementation libs.junit4
+  testImplementation libs.truth
+  testImplementation libs.kotlinStdLib
+  testImplementation libs.kotlinRuntime
+  testImplementation libs.kotlinTest
+  testImplementation libs.mockitoKotlin
 }
 
 apply from: rootProject.file('gradle/gradle-mvn-push.gradle')

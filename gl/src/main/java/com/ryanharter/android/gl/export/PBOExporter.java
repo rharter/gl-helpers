@@ -59,22 +59,22 @@ final class PBOExporter implements Exporter {
     glGenFramebuffers(1, ids, 1);
     glGenTextures(1, ids, 2);
 
-    GLState.bindTexture(0, GL_TEXTURE_2D, ids[2]);
+    GLState.INSTANCE.bindTexture(0, GL_TEXTURE_2D, ids[2]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
-    GLState.bindTexture(0, GL_TEXTURE_2D, 0);
+    GLState.INSTANCE.bindTexture(0, GL_TEXTURE_2D, 0);
 
-    GLState.bindFramebuffer(ids[1]);
+    GLState.INSTANCE.bindFramebuffer(ids[1]);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ids[2], 0);
-    GLState.bindFramebuffer(0);
+    GLState.INSTANCE.bindFramebuffer(0);
   }
 
   @Override public void begin() {
-    GLState.bindFramebuffer(ids[1]);
+    GLState.INSTANCE.bindFramebuffer(ids[1]);
   }
 
   @Override public Bitmap export() throws GLException {
@@ -119,7 +119,7 @@ final class PBOExporter implements Exporter {
 
   @Override public void destroy() {
     destroyed = true;
-    GLState.bindFramebuffer(0);
+    GLState.INSTANCE.bindFramebuffer(0);
     glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
     glDeleteBuffers(1, ids, 0);
     glDeleteFramebuffers(1, ids, 1);

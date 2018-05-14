@@ -14,9 +14,9 @@ final class GLES2Renderer implements Renderer {
   });
 
   @Override public void render() {
-    GLState.setAttributeEnabled(0, true);
+    GLState.INSTANCE.setAttributeEnabled(0, true);
     glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, QUAD_VERTICES.rewind());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    GLState.setAttributeEnabled(0, false);
+    GLState.INSTANCE.setAttributeEnabled(0, false);
   }
 }

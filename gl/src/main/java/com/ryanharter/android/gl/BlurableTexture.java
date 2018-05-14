@@ -14,7 +14,7 @@ public class BlurableTexture extends WritableTexture {
     super(width, height, hasDepth, false);
     intTexture = new WritableTexture(width, height, false, false);
 
-    switch (GLState.getGlVersion()) {
+    switch (GLState.INSTANCE.getGlVersion()) {
       case GLES_20:
         blurProgram = new GLES2BlurProgram();
         break;
@@ -40,7 +40,7 @@ public class BlurableTexture extends WritableTexture {
       intTexture.bindFramebuffer();
 
       // No blending since we're overwriting the texture
-      GLState.setBlend(false, false);
+      GLState.INSTANCE.setBlend(false, false);
 
       // draw to the intermediate texture, blurring
       // in the y direction
@@ -53,7 +53,7 @@ public class BlurableTexture extends WritableTexture {
       texelOffset[1] = incrementAmount * aspect;
       blurProgram.bindTexelOffset(texelOffset);
 
-      GLState.render();
+      GLState.INSTANCE.render();
 
       intTexture.unbindFramebuffer(true);
 
@@ -68,7 +68,7 @@ public class BlurableTexture extends WritableTexture {
       texelOffset[1] = 0;
       blurProgram.bindTexelOffset(texelOffset);
 
-      GLState.render();
+      GLState.INSTANCE.render();
       unbindFramebuffer(true);
 
       incrementAmount = amount / quality;
