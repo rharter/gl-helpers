@@ -20,6 +20,8 @@ open class CanvasTexture : Texture() {
   private var surface: Surface? = null
   private var bindUnit = -1
 
+  private var cachedCanvas: Canvas? = null
+
   init {
     glActiveTexture(0)
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, name)
@@ -46,16 +48,20 @@ open class CanvasTexture : Texture() {
   }
 
   fun draw(width: Int, height: Int, body: Canvas.() -> Unit) {
-    val canvas = beginDrawing(width, height)
+    val cached = cachedCanvas
+    val canvas = if (cached != null && cached.width == width && cached.height == height) {
+      cached
+    } else {
+      beginDrawing(width, height).also {
+        cachedCanvas = it
+      }
+    }
+
     canvas.body()
     endDrawing(canvas)
   }
 
   fun beginDrawing(width: Int, height: Int): Canvas {
-    if (surfaceTexture != null || surface != null) {
-      throw IllegalStateException("Drawing context already open, call endDrawing(canvas) to end.")
-    }
-
     surfaceTexture = SurfaceTexture(name).apply { setDefaultBufferSize(width, height) }
     surface = Surface(surfaceTexture)
     return surface!!.lockCanvas(null)
@@ -69,6 +75,7 @@ open class CanvasTexture : Texture() {
   }
 
   fun release() {
+    cachedCanvas = null
     surfaceTexture?.release()
     surfaceTexture = null
     surface?.release()
