@@ -35,7 +35,8 @@ public class Program {
 
   static final ArrayMap<String, Program> programs = new ArrayMap<>();
 
-  private String name;
+  private final String tag;
+  private final String name;
   private int program;
   private int vertexShader;
   private int fragmentShader;
@@ -47,6 +48,7 @@ public class Program {
 
   public Program(String name) {
     this.name = name;
+    this.tag = String.format("Program:%s", name);
   }
 
   /**
@@ -273,7 +275,7 @@ public class Program {
     if (loc == null) {
       loc = glGetUniformLocation(program, name);
       if (loc == -1) {
-        GLState.INSTANCE.getLogger().log(String.format("%s: Unknown uniform %s", getTag(), name));
+        GLState.INSTANCE.getLogger().log(String.format("%s: Unknown uniform %s", tag, name));
         return -1;
       }
       uniforms.put(name, loc);
@@ -291,7 +293,7 @@ public class Program {
     if (loc == null) {
       loc = glGetAttribLocation(program, name);
       if (loc == -1) {
-        GLState.INSTANCE.getLogger().log(String.format("%s: Unknown attribute %s", getTag(), name));
+        GLState.INSTANCE.getLogger().log(String.format("%s: Unknown attribute %s", tag, name));
         return -1;
       }
       attributes.put(name, loc);
@@ -316,7 +318,7 @@ public class Program {
   public void bindInt(int location, int v) {
     if (location < 0) {
       GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+          .log(String.format("%s: Invalid uniform location: %d", tag, location));
       return;
     }
     glUniform1i(location, v);
@@ -339,7 +341,7 @@ public class Program {
   public void bindFloat(int location, float v) {
     if (location < 0) {
       GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+          .log(String.format("%s: Invalid uniform location: %d", tag, location));
       return;
     }
     glUniform1f(location, v);
@@ -364,7 +366,7 @@ public class Program {
   public void bindFloat2(int location, float x, float y) {
     if (location < 0) {
       GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+          .log(String.format("%s: Invalid uniform location: %d", tag, location));
       return;
     }
     glUniform2f(location, x, y);
@@ -391,7 +393,7 @@ public class Program {
   public void bindFloat3(int location, float x, float y, float z) {
     if (location < 0) {
       GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+          .log(String.format("%s: Invalid uniform location: %d", tag, location));
       return;
     }
     glUniform3f(location, x, y, z);
@@ -420,7 +422,7 @@ public class Program {
   public void bindFloat4(int location, float x, float y, float z, float w) {
     if (location < 0) {
       GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+          .log(String.format("%s: Invalid uniform location: %d", tag, location));
       return;
     }
     glUniform4f(location, x, y, z, w);
@@ -443,7 +445,7 @@ public class Program {
   public void bindMatrix(int location, float[] m) {
     if (location < 0) {
       GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+          .log(String.format("%s: Invalid uniform location: %d", tag, location));
       return;
     }
     glUniformMatrix4fv(location, 1, false, m, 0);
@@ -466,7 +468,7 @@ public class Program {
   public void bindFloat2Array(int location, float[] v) {
     if (location < 0) {
       GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+          .log(String.format("%s: Invalid uniform location: %d", tag, location));
       return;
     }
     glUniform2fv(location, 1, v, 0);
@@ -489,13 +491,9 @@ public class Program {
   public void bindFloat4Array(int location, float[] v) {
     if (location < 0) {
       GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", getTag(), location));
+          .log(String.format("%s: Invalid uniform location: %d", tag, location));
       return;
     }
     glUniform4fv(location, 1, v, 0);
-  }
-
-  private String getTag() {
-    return String.format("Program:%s", name);
   }
 }

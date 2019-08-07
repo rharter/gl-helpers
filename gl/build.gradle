@@ -33,7 +33,6 @@ dependencies {
   testImplementation libs.junit4
   testImplementation libs.truth
   testImplementation libs.kotlinStdLib
-  testImplementation libs.kotlinRuntime
   testImplementation libs.kotlinTest
   testImplementation libs.mockitoKotlin
 }

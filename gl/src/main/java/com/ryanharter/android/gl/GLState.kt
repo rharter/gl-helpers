@@ -40,7 +40,6 @@ object GLState {
 
   private var glVersion = GLVersion.GL_UNKNOWN
   private var maxTextureSize = -1
-  private var viewport = IntArray(4)
   private var blend = false
   private var program = -1
   private var textureUnit = -1
@@ -48,6 +47,7 @@ object GLState {
   private var arrayBuffer = -1
   private var elementArrayBuffer = -1
   private var vertexArray = -1
+  private val viewport = IntArray(4)
   private val textures = SparseArray<SparseIntArray>()
   private val attributes = SparseBooleanArray()
   private val resetListeners = mutableSetOf<() -> Unit>()
@@ -90,13 +90,13 @@ object GLState {
 
   fun getViewport(viewport: IntArray) {
     if (GLState.viewport[0] == 0 && GLState.viewport[1] == 0 && GLState.viewport[2] == 0 && GLState.viewport[3] == 0) {
-      glGetIntegerv(GL_VIEWPORT, viewport, 0)
-    } else {
-      viewport[0] = GLState.viewport[0]
-      viewport[1] = GLState.viewport[1]
-      viewport[2] = GLState.viewport[2]
-      viewport[3] = GLState.viewport[3]
+      glGetIntegerv(GL_VIEWPORT, GLState.viewport, 0)
     }
+
+    viewport[0] = GLState.viewport[0]
+    viewport[1] = GLState.viewport[1]
+    viewport[2] = GLState.viewport[2]
+    viewport[3] = GLState.viewport[3]
   }
 
   fun getViewport(): IntArray {
@@ -107,7 +107,10 @@ object GLState {
   }
 
   fun setViewport(x: Int, y: Int, w: Int, h: Int) {
-    viewport = intArrayOf(x, y, w, h)
+    viewport[0] = x
+    viewport[1] = y
+    viewport[2] = w
+    viewport[3] = h
     glViewport(x, y, w, h)
   }
 
