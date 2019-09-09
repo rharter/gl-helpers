@@ -1,5 +1,6 @@
 package com.ryanharter.android.gl
 
+import android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES
 import android.opengl.GLES20
 import android.opengl.GLES20.GL_ARRAY_BUFFER
 import android.opengl.GLES20.GL_BLEND
@@ -8,6 +9,7 @@ import android.opengl.GLES20.GL_FRAMEBUFFER
 import android.opengl.GLES20.GL_MAX_TEXTURE_SIZE
 import android.opengl.GLES20.GL_ONE
 import android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA
+import android.opengl.GLES20.GL_RENDERER
 import android.opengl.GLES20.GL_TEXTURE0
 import android.opengl.GLES20.GL_VERSION
 import android.opengl.GLES20.GL_VIEWPORT
@@ -21,6 +23,7 @@ import android.opengl.GLES20.glDisableVertexAttribArray
 import android.opengl.GLES20.glEnable
 import android.opengl.GLES20.glEnableVertexAttribArray
 import android.opengl.GLES20.glGetIntegerv
+import android.opengl.GLES20.glGetString
 import android.opengl.GLES20.glUseProgram
 import android.opengl.GLES20.glViewport
 import android.opengl.GLES30.glBindVertexArray
@@ -30,6 +33,16 @@ import android.util.SparseArray
 import android.util.SparseBooleanArray
 import android.util.SparseIntArray
 import java.util.Arrays
+
+private data class GLBugs(
+    // Some drivers require the GL_TEXTURE_EXTERNAL_OES target to be bound when
+    // the texture image changes, even if it's already bound to that texture
+    val externalTextureNeedsRebind: Boolean
+) {
+  constructor(renderer: String) : this(
+      externalTextureNeedsRebind = renderer.contains("Mali-T")
+  )
+}
 
 object GLState {
 
@@ -53,6 +66,9 @@ object GLState {
   private val resetListeners = mutableSetOf<() -> Unit>()
 
   private val tempInt = IntArray(16)
+
+  private var _bugs: GLBugs? = null
+  private val bugs: GLBugs get() = _bugs ?: GLBugs(glGetString(GL_RENDERER)).also { _bugs = it }
 
   fun addResetListener(l: () -> Unit) {
     resetListeners.add(l)
@@ -117,6 +133,7 @@ object GLState {
   fun reset() {
     logger.log("Resetting state.")
     glVersion = GLVersion.GL_UNKNOWN
+    _bugs = null
     maxTextureSize = -1
     blend = false
     program = -1
@@ -154,13 +171,12 @@ object GLState {
   }
 
   fun bindTexture(unit: Int, target: Int, texture: Int) {
-    var cache: SparseIntArray? = textures.get(target)
-    if (cache == null) {
-      cache = SparseIntArray()
-      textures.put(target, cache)
+    val cache: SparseIntArray = textures.get(target) ?: SparseIntArray().also {
+      textures.put(target, it)
     }
 
-    if (cache.get(unit) != texture) {
+    if (cache.get(unit) != texture ||
+        (target == GL_TEXTURE_EXTERNAL_OES && bugs.externalTextureNeedsRebind)) {
       setTextureUnit(unit)
       glBindTexture(target, texture)
       cache.put(unit, texture)

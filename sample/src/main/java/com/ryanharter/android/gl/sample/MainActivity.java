@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import com.pixite.common.sample.R;
 import com.ryanharter.android.gl.BitmapTexture;
 import com.ryanharter.android.gl.GLState;
 import com.ryanharter.android.gl.Program;
@@ -42,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    surface = (GLSurfaceView) findViewById(R.id.surface);
+    surface = findViewById(R.id.surface);
 
     surface.setEGLContextClientVersion(2);
     surface.setEGLConfigChooser(new GLSurfaceView.EGLConfigChooser() {
