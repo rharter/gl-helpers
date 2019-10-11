@@ -152,7 +152,7 @@ open class WritableTexture @JvmOverloads constructor(
 
     // create the texture in memory
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, null)
-    GlUtil.checkError()
+    glCheckError { "glTexImage2D(GL_TEXTURE_2D, 0, $internalFormat, $width, $height, 0, $format, $type, null)" }
 
     // unbind the texture before attaching it to the framebuffer
     GLState.bindTexture(0, GL_TEXTURE_2D, 0)
@@ -162,7 +162,7 @@ open class WritableTexture @JvmOverloads constructor(
 
     // attach the texture buffer to color
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, name, 0)
-    GlUtil.checkError()
+    glCheckError { "glFramebufferTexture2D" }
 
     if (hasDepth) {
       glGenRenderbuffers(1, buffers, 1)
@@ -263,7 +263,8 @@ open class WritableTexture @JvmOverloads constructor(
    * @param restoreState True to restore the previous viewport/framebuffer state, false to
    * restore the default framebuffer;
    */
-  @JvmOverloads fun unbindFramebuffer(restoreState: Boolean = true) {
+  @JvmOverloads
+  fun unbindFramebuffer(restoreState: Boolean = true) {
     if (restoreState) {
       GLState.bindFramebuffer(defaultFramebufferId)
       GLState.setViewport(defaultViewportSize[0], defaultViewportSize[1], defaultViewportSize[2],
