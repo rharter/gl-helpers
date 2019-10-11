@@ -19,8 +19,8 @@ android {
 
 dependencies {
   implementation project(':gl')
-  implementation libs.supportAppCompat
-  implementation libs.supportConstraintLayout
+  implementation dep.supportAppCompat
+  implementation dep.supportConstraintLayout
 
-  testImplementation libs.junit4
+  testImplementation dep.junit4
 }

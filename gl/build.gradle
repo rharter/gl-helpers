@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'com.vanniktech.maven.publish'
 
 def platformVersion = 18
 
@@ -28,13 +29,11 @@ android {
 }
 
 dependencies {
-  implementation libs.supportCore
-  implementation libs.kotlinStdLib
-  testImplementation libs.junit4
-  testImplementation libs.truth
-  testImplementation libs.kotlinStdLib
-  testImplementation libs.kotlinTest
-  testImplementation libs.mockitoKotlin
+  implementation dep.supportCore
+  implementation dep.kotlinStdLib
+  testImplementation dep.junit4
+  testImplementation dep.truth
+  testImplementation dep.kotlinStdLib
+  testImplementation dep.kotlinTest
+  testImplementation dep.mockitoKotlin
 }
-
-apply from: rootProject.file('gradle/gradle-mvn-push.gradle')
