@@ -7,11 +7,13 @@ import android.opengl.GLES20.GL_COLOR_BUFFER_BIT
 import android.opengl.GLES20.GL_DEPTH_ATTACHMENT
 import android.opengl.GLES20.GL_DEPTH_BUFFER_BIT
 import android.opengl.GLES20.GL_DEPTH_COMPONENT16
+import android.opengl.GLES20.GL_FLOAT
 import android.opengl.GLES20.GL_FRAMEBUFFER
 import android.opengl.GLES20.GL_FRAMEBUFFER_BINDING
 import android.opengl.GLES20.GL_FRAMEBUFFER_COMPLETE
 import android.opengl.GLES20.GL_LINEAR
 import android.opengl.GLES20.GL_RENDERBUFFER
+import android.opengl.GLES20.GL_RGB
 import android.opengl.GLES20.GL_RGBA
 import android.opengl.GLES20.GL_STENCIL_ATTACHMENT
 import android.opengl.GLES20.GL_STENCIL_BUFFER_BIT
@@ -45,12 +47,47 @@ import android.opengl.GLES20.glTexImage2D
 import android.opengl.GLES20.glTexParameteri
 import android.opengl.GLES20.glViewport
 import android.opengl.GLES30.GL_DYNAMIC_READ
+import android.opengl.GLES30.GL_HALF_FLOAT
 import android.opengl.GLES30.GL_PIXEL_PACK_BUFFER
+import android.opengl.GLES30.GL_R16F
+import android.opengl.GLES30.GL_R32F
+import android.opengl.GLES30.GL_R8
+import android.opengl.GLES30.GL_R8_SNORM
+import android.opengl.GLES30.GL_RED
+import android.opengl.GLES30.GL_RG
+import android.opengl.GLES30.GL_RG16F
+import android.opengl.GLES30.GL_RG32F
+import android.opengl.GLES30.GL_RG8
+import android.opengl.GLES30.GL_RG8_SNORM
+import android.opengl.GLES30.GL_RGB16F
+import android.opengl.GLES30.GL_RGB32F
+import android.opengl.GLES30.GL_RGB8
+import android.opengl.GLES30.GL_RGB8_SNORM
+import android.opengl.GLES30.GL_RGBA16F
+import android.opengl.GLES30.GL_RGBA32F
+import android.opengl.GLES30.GL_RGBA8
+import android.opengl.GLES30.GL_RGBA8_SNORM
+import android.opengl.GLES30.GL_SRGB8
+import android.opengl.GLES30.GL_SRGB8_ALPHA8
 import android.opengl.GLES30.glMapBufferRange
 import android.opengl.GLES30.glReadBuffer
 import android.opengl.GLES30.glUnmapBuffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+
+private fun format(internalFormat: Int) = when (internalFormat) {
+  GL_R8, GL_R8_SNORM, GL_R16F, GL_R32F -> GL_RED
+  GL_RG8, GL_RG8_SNORM, GL_RG16F, GL_RG32F -> GL_RG
+  GL_RGB8, GL_SRGB8, GL_RGB8_SNORM, GL_RGB16F, GL_RGB32F -> GL_RGB
+  GL_RGBA8, GL_SRGB8_ALPHA8, GL_RGBA8_SNORM, GL_RGBA16F, GL_RGBA32F -> GL_RGBA
+  else -> internalFormat
+}
+
+private fun type(internalFormat: Int) = when (internalFormat) {
+  GL_R16F, GL_RG16F, GL_RGB16F, GL_RGBA16F -> GL_HALF_FLOAT
+  GL_R32F, GL_RG32F, GL_RGB32F, GL_RGBA32F -> GL_FLOAT
+  else -> GL_UNSIGNED_BYTE
+}
 
 /**
  * An OpenGL texture that also has the appropriate framebuffers so that
@@ -61,7 +98,10 @@ open class WritableTexture @JvmOverloads constructor(
     protected val height: Int,
     hasDepth: Boolean = false,
     hasStencil: Boolean = false,
-    format: Int = GL_RGBA) : Texture() {
+    internalFormat: Int = GL_RGBA,
+    format: Int = format(internalFormat),
+    type: Int = type(internalFormat)
+) : Texture() {
 
   private val temp = IntArray(16)
 
@@ -111,7 +151,8 @@ open class WritableTexture @JvmOverloads constructor(
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
 
     // create the texture in memory
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, null)
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, null)
+    GlUtil.checkError()
 
     // unbind the texture before attaching it to the framebuffer
     GLState.bindTexture(0, GL_TEXTURE_2D, 0)
@@ -121,6 +162,7 @@ open class WritableTexture @JvmOverloads constructor(
 
     // attach the texture buffer to color
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, name, 0)
+    GlUtil.checkError()
 
     if (hasDepth) {
       glGenRenderbuffers(1, buffers, 1)
