@@ -46,32 +46,7 @@ import android.opengl.GLES20.glRenderbufferStorage
 import android.opengl.GLES20.glTexImage2D
 import android.opengl.GLES20.glTexParameteri
 import android.opengl.GLES20.glViewport
-import android.opengl.GLES30.GL_DYNAMIC_READ
-import android.opengl.GLES30.GL_HALF_FLOAT
-import android.opengl.GLES30.GL_PIXEL_PACK_BUFFER
-import android.opengl.GLES30.GL_R16F
-import android.opengl.GLES30.GL_R32F
-import android.opengl.GLES30.GL_R8
-import android.opengl.GLES30.GL_R8_SNORM
-import android.opengl.GLES30.GL_RED
-import android.opengl.GLES30.GL_RG
-import android.opengl.GLES30.GL_RG16F
-import android.opengl.GLES30.GL_RG32F
-import android.opengl.GLES30.GL_RG8
-import android.opengl.GLES30.GL_RG8_SNORM
-import android.opengl.GLES30.GL_RGB16F
-import android.opengl.GLES30.GL_RGB32F
-import android.opengl.GLES30.GL_RGB8
-import android.opengl.GLES30.GL_RGB8_SNORM
-import android.opengl.GLES30.GL_RGBA16F
-import android.opengl.GLES30.GL_RGBA32F
-import android.opengl.GLES30.GL_RGBA8
-import android.opengl.GLES30.GL_RGBA8_SNORM
-import android.opengl.GLES30.GL_SRGB8
-import android.opengl.GLES30.GL_SRGB8_ALPHA8
-import android.opengl.GLES30.glMapBufferRange
-import android.opengl.GLES30.glReadBuffer
-import android.opengl.GLES30.glUnmapBuffer
+import android.opengl.GLES30.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -92,15 +67,18 @@ private fun type(internalFormat: Int) = when (internalFormat) {
 /**
  * An OpenGL texture that also has the appropriate framebuffers so that
  * it can be written to, as well as read from.
+ *
+ * The use of half float textures as render targets requires the `GL_EXT_color_buffer_half_float`
+ * extension.
  */
 open class WritableTexture @JvmOverloads constructor(
-    protected val width: Int,
-    protected val height: Int,
-    hasDepth: Boolean = false,
-    hasStencil: Boolean = false,
-    internalFormat: Int = GL_RGBA,
-    format: Int = format(internalFormat),
-    type: Int = type(internalFormat)
+  protected val width: Int,
+  protected val height: Int,
+  hasDepth: Boolean = false,
+  hasStencil: Boolean = false,
+  internalFormat: Int = GL_RGBA,
+  format: Int = format(internalFormat),
+  type: Int = type(internalFormat)
 ) : Texture() {
 
   private val temp = IntArray(16)
@@ -158,11 +136,11 @@ open class WritableTexture @JvmOverloads constructor(
     GLState.bindTexture(0, GL_TEXTURE_2D, 0)
 
     // create the framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, buffers[0])
+    bindFramebuffer()
 
     // attach the texture buffer to color
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, name, 0)
-    glCheckError { "glFramebufferTexture2D" }
+    glCheckError { "WritableTexture: glFramebufferTexture2D" }
 
     if (hasDepth) {
       glGenRenderbuffers(1, buffers, 1)
@@ -188,18 +166,26 @@ open class WritableTexture @JvmOverloads constructor(
 
     val error = glCheckFramebufferStatus(GL_FRAMEBUFFER)
     if (error != GL_FRAMEBUFFER_COMPLETE) {
-      GLState.logger.log(String.format("Failed to make complete Framebuffer: 0x%s", Integer.toHexString(error)))
+      val errorString = when (error) {
+        GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT -> "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"
+        GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT -> "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"
+        GL_FRAMEBUFFER_UNSUPPORTED -> "GL_FRAMEBUFFER_UNSUPPORTED"
+        GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE -> "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"
+        GL_FRAMEBUFFER_UNDEFINED -> "GL_FRAMEBUFFER_UNDEFINED"
+        else -> "Unknown: 0x${Integer.toHexString(error)}"
+      }
+      GLState.logger.log("Failed to make complete Framebuffer: $errorString")
     } else {
       // clear the texture
       glClearColor(0f, 0f, 0f, 0f)
       glClearStencil(0)
       glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT or GL_STENCIL_BUFFER_BIT)
-
-      // reset the old framebuffer and viewport
-      glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferId)
-      glViewport(defaultViewportSize[0], defaultViewportSize[1], defaultViewportSize[2],
-          defaultViewportSize[3])
+      glCheckError { "WritableTexture: Initial framebuffer clear on creation." }
     }
+
+    // reset the old framebuffer and viewport
+    unbindFramebuffer()
+    glCheckError { "WritableTexture: Rebind original framebuffer" }
   }
 
   fun getBitmapPbo(width: Int, height: Int): Bitmap {
@@ -268,7 +254,7 @@ open class WritableTexture @JvmOverloads constructor(
     if (restoreState) {
       GLState.bindFramebuffer(defaultFramebufferId)
       GLState.setViewport(defaultViewportSize[0], defaultViewportSize[1], defaultViewportSize[2],
-          defaultViewportSize[3])
+        defaultViewportSize[3])
     } else {
       GLState.bindFramebuffer(0)
     }

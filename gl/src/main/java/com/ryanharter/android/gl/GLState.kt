@@ -2,30 +2,7 @@ package com.ryanharter.android.gl
 
 import android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES
 import android.opengl.GLES20
-import android.opengl.GLES20.GL_ARRAY_BUFFER
-import android.opengl.GLES20.GL_BLEND
-import android.opengl.GLES20.GL_ELEMENT_ARRAY_BUFFER
-import android.opengl.GLES20.GL_FRAMEBUFFER
-import android.opengl.GLES20.GL_MAX_TEXTURE_SIZE
-import android.opengl.GLES20.GL_ONE
-import android.opengl.GLES20.GL_ONE_MINUS_SRC_ALPHA
-import android.opengl.GLES20.GL_RENDERER
-import android.opengl.GLES20.GL_TEXTURE0
-import android.opengl.GLES20.GL_VERSION
-import android.opengl.GLES20.GL_VIEWPORT
-import android.opengl.GLES20.glActiveTexture
-import android.opengl.GLES20.glBindBuffer
-import android.opengl.GLES20.glBindFramebuffer
-import android.opengl.GLES20.glBindTexture
-import android.opengl.GLES20.glBlendFunc
-import android.opengl.GLES20.glDisable
-import android.opengl.GLES20.glDisableVertexAttribArray
-import android.opengl.GLES20.glEnable
-import android.opengl.GLES20.glEnableVertexAttribArray
-import android.opengl.GLES20.glGetIntegerv
-import android.opengl.GLES20.glGetString
-import android.opengl.GLES20.glUseProgram
-import android.opengl.GLES20.glViewport
+import android.opengl.GLES20.*
 import android.opengl.GLES30.glBindVertexArray
 import android.os.Build
 import android.support.annotation.RequiresApi
@@ -52,6 +29,7 @@ object GLState {
   private val renderer = GLES2Renderer()
 
   private var glVersion = GLVersion.GL_UNKNOWN
+  private var glExtensions = ""
   private var maxTextureSize = -1
   private var blend = false
   private var program = -1
@@ -68,7 +46,14 @@ object GLState {
   private val tempInt = IntArray(16)
 
   private var _bugs: GLBugs? = null
-  private val bugs: GLBugs get() = _bugs ?: GLBugs(glGetString(GL_RENDERER)).also { _bugs = it }
+  private val bugs: GLBugs get() {
+    if (_bugs == null) {
+      // Only set the internal property if we get a valid renderer (sometimes this returns null)
+      val renderer = glGetString(GL_RENDERER) ?: return GLBugs(true)
+      _bugs = GLBugs(renderer)
+    }
+    return _bugs!!
+  }
 
   fun addResetListener(l: () -> Unit) {
     resetListeners.add(l)
@@ -94,6 +79,13 @@ object GLState {
       }
     }
     return glVersion
+  }
+
+  fun hasExtension(name: String): Boolean {
+    if (glExtensions.isEmpty()) {
+      glExtensions = glGetString(GL_EXTENSIONS)
+    }
+    return glExtensions.contains(name)
   }
 
   fun getMaxTextureSize(): Int {
