@@ -11,7 +11,9 @@ import java.util.Map;
 
 import static android.opengl.GLES20.GL_COMPILE_STATUS;
 import static android.opengl.GLES20.GL_FALSE;
+import static android.opengl.GLES20.GL_FRAGMENT_SHADER;
 import static android.opengl.GLES20.GL_LINK_STATUS;
+import static android.opengl.GLES20.GL_VERTEX_SHADER;
 import static android.opengl.GLES20.glAttachShader;
 import static android.opengl.GLES20.glCompileShader;
 import static android.opengl.GLES20.glCreateProgram;
@@ -64,8 +66,23 @@ final class Programs {
     int[] compiled = new int[1];
     glGetShaderiv(shader, GL_COMPILE_STATUS, compiled, 0);
     if (compiled[0] == 0) {
+      String typeName;
+      if (type == GL_VERTEX_SHADER) {
+        typeName = "vertex";
+      } else if (type == GL_FRAGMENT_SHADER) {
+        typeName = "fragment";
+      } else {
+        typeName = String.format("(unknown type: %d)", type);
+      }
       GLState.INSTANCE.getLogger()
-          .log(String.format("Could not compile shader: %s", glGetShaderInfoLog(shader)));
+        .log(
+          String.format("Could not compile %s shader[%d]: %s",
+            typeName,
+            shader,
+            glGetShaderInfoLog(shader)
+          )
+        );
+      GLState.INSTANCE.getLogger().log(String.format("Source:\n%s", source));
       glDeleteShader(shader);
       shader = 0;
     }
