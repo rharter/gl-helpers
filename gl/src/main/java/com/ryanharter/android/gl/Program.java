@@ -275,10 +275,10 @@ public class Program {
     if (loc == null) {
       loc = glGetUniformLocation(program, name);
       if (loc == -1) {
-        GLState.INSTANCE.getLogger().log(String.format("%s: Unknown uniform %s", tag, name));
+        GLState.INSTANCE.getLogger().log(String.format("%s: Unknown uniform %s. This will only be logged once.", tag, name));
+        uniforms.put(name, loc);
         return -1;
       }
-      uniforms.put(name, loc);
     }
     return loc;
   }
@@ -294,9 +294,9 @@ public class Program {
       loc = glGetAttribLocation(program, name);
       if (loc == -1) {
         GLState.INSTANCE.getLogger().log(String.format("%s: Unknown attribute %s", tag, name));
+        attributes.put(name, loc);
         return -1;
       }
-      attributes.put(name, loc);
     }
     return loc;
   }
@@ -316,11 +316,7 @@ public class Program {
    * @param v The value to bind to the uniform.
    */
   public void bindInt(int location, int v) {
-    if (location < 0) {
-      GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", tag, location));
-      return;
-    }
+    if (location < 0)  return;
     glUniform1i(location, v);
   }
 
@@ -339,11 +335,7 @@ public class Program {
    * @param v the value to bind to the uniform.
    */
   public void bindFloat(int location, float v) {
-    if (location < 0) {
-      GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", tag, location));
-      return;
-    }
+    if (location < 0)  return;
     glUniform1f(location, v);
   }
 
@@ -364,11 +356,7 @@ public class Program {
    * @param y The y value to bind to the uniform.
    */
   public void bindFloat2(int location, float x, float y) {
-    if (location < 0) {
-      GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", tag, location));
-      return;
-    }
+    if (location < 0) return;
     glUniform2f(location, x, y);
   }
 
@@ -391,11 +379,7 @@ public class Program {
    * @param z The z value to bind to the uniform.
    */
   public void bindFloat3(int location, float x, float y, float z) {
-    if (location < 0) {
-      GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", tag, location));
-      return;
-    }
+    if (location < 0) return;
     glUniform3f(location, x, y, z);
   }
 
@@ -420,11 +404,7 @@ public class Program {
    * @param w The w value to bind to the uniform.
    */
   public void bindFloat4(int location, float x, float y, float z, float w) {
-    if (location < 0) {
-      GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", tag, location));
-      return;
-    }
+    if (location < 0) return;
     glUniform4f(location, x, y, z, w);
   }
 
@@ -443,11 +423,7 @@ public class Program {
    * @param m The matrix to bind to the uniform.
    */
   public void bindMatrix(int location, float[] m) {
-    if (location < 0) {
-      GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", tag, location));
-      return;
-    }
+    if (location < 0) return;
     glUniformMatrix4fv(location, 1, false, m, 0);
   }
 
@@ -466,11 +442,7 @@ public class Program {
    * @param v The 2 float array to bind to the uniform.
    */
   public void bindFloat2Array(int location, float[] v) {
-    if (location < 0) {
-      GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", tag, location));
-      return;
-    }
+    if (location < 0) return;
     glUniform2fv(location, 1, v, 0);
   }
 
@@ -489,11 +461,7 @@ public class Program {
    * @param v The 4 float array to bind to the uniform.
    */
   public void bindFloat4Array(int location, float[] v) {
-    if (location < 0) {
-      GLState.INSTANCE.getLogger()
-          .log(String.format("%s: Invalid uniform location: %d", tag, location));
-      return;
-    }
+    if (location < 0) return;
     glUniform4fv(location, 1, v, 0);
   }
 }
