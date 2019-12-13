@@ -19,7 +19,6 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-
 subprojects {
 
   repositories {
@@ -43,6 +42,11 @@ subprojects {
     if (project.hasProperty("android")) {
       android {
         compileSdkVersion vers.compileSdkVersion
+
+        compileOptions {
+          sourceCompatibility JavaVersion.VERSION_1_8
+          targetCompatibility JavaVersion.VERSION_1_8
+        }
 
         defaultConfig {
           minSdkVersion vers.minSdkVersion
