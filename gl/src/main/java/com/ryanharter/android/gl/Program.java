@@ -274,9 +274,9 @@ public class Program {
     Integer loc = uniforms.get(name);
     if (loc == null) {
       loc = glGetUniformLocation(program, name);
+      uniforms.put(name, loc);
       if (loc == -1) {
         GLState.INSTANCE.getLogger().log(String.format("%s: Unknown uniform %s. This will only be logged once.", tag, name));
-        uniforms.put(name, loc);
         return -1;
       }
     }
@@ -292,9 +292,9 @@ public class Program {
     Integer loc = attributes.get(name);
     if (loc == null) {
       loc = glGetAttribLocation(program, name);
+      attributes.put(name, loc);
       if (loc == -1) {
         GLState.INSTANCE.getLogger().log(String.format("%s: Unknown attribute %s", tag, name));
-        attributes.put(name, loc);
         return -1;
       }
     }
