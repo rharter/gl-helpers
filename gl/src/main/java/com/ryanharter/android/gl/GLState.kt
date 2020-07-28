@@ -5,19 +5,19 @@ import android.opengl.GLES20
 import android.opengl.GLES20.*
 import android.opengl.GLES30.glBindVertexArray
 import android.os.Build
-import android.support.annotation.RequiresApi
 import android.util.SparseArray
 import android.util.SparseBooleanArray
 import android.util.SparseIntArray
+import androidx.annotation.RequiresApi
 import java.util.Arrays
 
 private data class GLBugs(
-    // Some drivers require the GL_TEXTURE_EXTERNAL_OES target to be bound when
-    // the texture image changes, even if it's already bound to that texture
-    val externalTextureNeedsRebind: Boolean
+  // Some drivers require the GL_TEXTURE_EXTERNAL_OES target to be bound when
+  // the texture image changes, even if it's already bound to that texture
+  val externalTextureNeedsRebind: Boolean
 ) {
   constructor(renderer: String) : this(
-      externalTextureNeedsRebind = renderer.contains("Mali-T")
+    externalTextureNeedsRebind = renderer.contains("Mali-T")
   )
 }
 
@@ -46,14 +46,15 @@ object GLState {
   private val tempInt = IntArray(16)
 
   private var _bugs: GLBugs? = null
-  private val bugs: GLBugs get() {
-    if (_bugs == null) {
-      // Only set the internal property if we get a valid renderer (sometimes this returns null)
-      val renderer = glGetString(GL_RENDERER) ?: return GLBugs(true)
-      _bugs = GLBugs(renderer)
+  private val bugs: GLBugs
+    get() {
+      if (_bugs == null) {
+        // Only set the internal property if we get a valid renderer (sometimes this returns null)
+        val renderer = glGetString(GL_RENDERER) ?: return GLBugs(true)
+        _bugs = GLBugs(renderer)
+      }
+      return _bugs!!
     }
-    return _bugs!!
-  }
 
   fun addResetListener(l: () -> Unit) {
     resetListeners.add(l)
@@ -168,7 +169,7 @@ object GLState {
     }
 
     if (cache.get(unit) != texture ||
-        (target == GL_TEXTURE_EXTERNAL_OES && bugs.externalTextureNeedsRebind)) {
+      (target == GL_TEXTURE_EXTERNAL_OES && bugs.externalTextureNeedsRebind)) {
       setTextureUnit(unit)
       glBindTexture(target, texture)
       cache.put(unit, texture)

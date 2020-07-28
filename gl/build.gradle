@@ -29,8 +29,9 @@ android {
 }
 
 dependencies {
-  implementation dep.supportCore
-  implementation dep.kotlinStdLib
+  api dep.kotlinStdLib
+  api dep.androidx.annotation
+  implementation dep.androidx.collection
   testImplementation dep.junit4
   testImplementation dep.truth
   testImplementation dep.kotlinStdLib

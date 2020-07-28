@@ -7,6 +7,10 @@ ext.vers = [
 
 ext.dep = [
   "androidGradlePlugin"     : 'com.android.tools.build:gradle:3.5.1',
+  "androidx" : [
+    "annotation": "androidx.annotation:annotation:1.1.0",
+    "collection": "androidx.collection:collection:1.1.0"
+  ],
   "junit4"                  : 'junit:junit:4.12',
   "kotlinGradlePlugin"      : "org.jetbrains.kotlin:kotlin-gradle-plugin:${vers.kotlin}",
   "kotlinStdLib"            : "org.jetbrains.kotlin:kotlin-stdlib:${vers.kotlin}",

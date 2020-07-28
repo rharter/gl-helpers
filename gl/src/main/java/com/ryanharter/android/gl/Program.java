@@ -3,7 +3,7 @@ package com.ryanharter.android.gl;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;

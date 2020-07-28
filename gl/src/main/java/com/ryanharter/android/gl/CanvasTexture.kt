@@ -35,7 +35,6 @@ open class CanvasTexture : Texture() {
   }
 
   override fun bind(unit: Int) {
-    unbind()
     bindUnit = unit
     GLState.bindTexture(unit, GL_TEXTURE_EXTERNAL_OES, name)
   }
@@ -70,7 +69,6 @@ open class CanvasTexture : Texture() {
   fun endDrawing(canvas: Canvas) {
     surface?.unlockCanvasAndPost(canvas)
     surfaceTexture?.updateTexImage()
-    unbind()
     release()
   }
 

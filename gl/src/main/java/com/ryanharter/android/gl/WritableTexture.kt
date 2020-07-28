@@ -164,6 +164,8 @@ open class WritableTexture @JvmOverloads constructor(
       buffers[2] = -1
     }
 
+    glCheckError { "WritableTexture: Framebuffer creation failed."}
+
     val error = glCheckFramebufferStatus(GL_FRAMEBUFFER)
     if (error != GL_FRAMEBUFFER_COMPLETE) {
       val errorString = when (error) {

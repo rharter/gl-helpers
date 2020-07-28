@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 0.3.5
+
+_2020-07-28_
+
+ * Migrates to AndroidX
+
 ## Version 0.3.4
 
 _2019-12-13_
